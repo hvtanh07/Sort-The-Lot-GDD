@@ -1,0 +1,1715 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Sort The Lot GDD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: dark sticky rail (contents + search) on the left, one reading column on the right; parking-bay number signs mark sections. */
+:root{
+  --paper:#EEF1F6; --surface:#FFFFFF; --ink:#18203A; --muted:#566079; --line:#D6DCE8; --tint:#E3E8F1;
+  --rail:#232A40; --rail-ink:#EEF1F8; --rail-muted:#AAB3C9; --rail-line:rgba(255,255,255,.13); --rail-hover:rgba(255,255,255,.08);
+  --track:#2A3149; --accent:#1F55D6; --focus:#1F55D6; --mark:#FFDF5E; --flash:rgba(255,214,64,.42); --wip:#FBE7A1;
+  --c1:#D9363E; --c2:#2563EB; --c3:#1B8641; --c4:#F4BE0B; --c5:#F472B6; --c6:#F58220; --c7:#7C4DDB; --c8:#22B8D1;
+  --display:"Baloo 2","Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --rail-w:304px; --bar-h:0px;
+  --hid:#7D8597; --wood:#A8723F; --veil:rgba(24,32,58,.58); --lane:#E3E8F1; --paint:#FFFFFF; --glass:#16203A; --warn:#C42B33;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#131826; --surface:#1B2234; --ink:#E9EDF7; --muted:#A3ADC4; --line:#2F3852; --tint:#232B41;
+    --rail:#0E1220; --track:#0B0F1B; --accent:#8FB1FF; --focus:#8FB1FF; --flash:rgba(255,214,64,.26); --wip:#5A4B14;
+    --hid:#6E778C; --wood:#B98252; --veil:rgba(6,9,18,.66); --lane:#262F47; --paint:#3E4964; --warn:#FF7A80;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131826; --surface:#1B2234; --ink:#E9EDF7; --muted:#A3ADC4; --line:#2F3852; --tint:#232B41;
+  --rail:#0E1220; --track:#0B0F1B; --accent:#8FB1FF; --focus:#8FB1FF; --flash:rgba(255,214,64,.26); --wip:#5A4B14;
+  --hid:#6E778C; --wood:#B98252; --veil:rgba(6,9,18,.66); --lane:#262F47; --paint:#3E4964; --warn:#FF7A80;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + var(--bar-h) + 14px)}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 1rem/1.65 var(--body);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+a{color:var(--accent);text-underline-offset:3px}
+button{font:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.rail :focus-visible{outline-color:#fff}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:var(--rail-w) minmax(0,1fr)}
+main{container-type:inline-size;padding:48px clamp(20px,5vw,64px) 30vh;width:100%;max-width:1040px;min-width:0;margin-inline:auto}
+
+/* ---------- rail (contents + search) ---------- */
+.rail{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;z-index:30;
+  height:100vh;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;background:var(--rail);color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:12px;padding:22px 20px 14px;color:inherit;text-decoration:none;font:800 1.4rem/1.05 var(--display)}
+.brand .cap{width:38px;height:38px}
+.brand small{display:block;margin-top:3px;font:500 .8rem/1.2 var(--body);color:var(--rail-muted)}
+.menu-btn{display:none}
+.lang{display:grid;grid-template-columns:1fr 1fr;margin:0 18px 12px;padding:3px;border-radius:999px;background:rgba(255,255,255,.1)}
+.lang button{border:0;background:none;color:var(--rail-ink);font:600 .88rem/1 var(--body);padding:9px 10px;border-radius:999px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:#fff;color:#18203A}
+.lang .short{display:none}
+.search{position:relative;margin:0 18px 10px}
+.search input{width:100%;height:44px;border-radius:12px;border:1px solid var(--rail-line);background:rgba(255,255,255,.07);
+  color:var(--rail-ink);font:400 1rem/1 var(--body);padding:0 70px 0 40px;-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:var(--rail-muted);opacity:1}
+.search input:placeholder-shown{padding-right:46px}
+.search input::-webkit-search-cancel-button{display:none}
+.search .ico{position:absolute;left:13px;top:50%;width:17px;height:17px;transform:translateY(-50%);color:var(--rail-muted);pointer-events:none}
+.search-r{position:absolute;right:6px;top:0;bottom:0;display:flex;align-items:center;gap:2px}
+.hint{font-size:.8rem;color:var(--rail-muted);padding:0 6px;font-variant-numeric:tabular-nums}
+.hint.key{border:1px solid var(--rail-line);border-radius:6px;padding:1px 7px;margin-right:6px}
+.clr{width:34px;height:34px;border:0;border-radius:8px;background:none;color:var(--rail-ink);font-size:1.5rem;line-height:1;cursor:pointer}
+.clr:hover{background:var(--rail-hover)}
+.panel{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 10px 28px}
+.rail[data-view="toc"] #results,.rail[data-view="results"] #toc{display:none}
+
+.toc ol{list-style:none;margin:0;padding:0}
+.toc>ol>li{margin-bottom:6px}
+.toc a{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;color:var(--rail-ink);text-decoration:none;font-weight:600;font-size:.96rem;line-height:1.3}
+.toc a .cap{width:26px;height:26px}
+.toc a .tl{flex:1;min-width:0}
+.toc ol ol a{font-weight:400;font-size:.92rem;color:var(--rail-muted);padding:6px 10px 6px 12px}
+.toc ol ol .num{flex:none;width:2.1em;text-align:right;font-variant-numeric:tabular-nums}
+.toc a:hover{background:var(--rail-hover)}
+.toc a.on{background:rgba(255,255,255,.14);color:#fff}
+.toc .wipt{flex:none;font-size:.72rem;font-weight:600;color:#18203A;background:var(--c4);border-radius:999px;padding:1px 7px}
+
+.res-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 10px 8px;color:var(--rail-muted);font-size:.86rem}
+.linkbtn{border:0;background:none;color:var(--rail-ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:4px;font-size:.86rem}
+.res{display:block;padding:9px 10px;border-radius:10px;color:var(--rail-ink);text-decoration:none}
+.res:hover,.res[aria-current="true"]{background:var(--rail-hover)}
+.res[aria-current="true"]{box-shadow:inset 3px 0 0 var(--mark)}
+.res .crumb{display:block;font-size:.78rem;color:var(--rail-muted);margin-bottom:2px}
+.res .snip{display:block;font-size:.9rem;line-height:1.45;overflow-wrap:anywhere}
+.res mark{background:var(--mark);color:#18203A;border-radius:3px;padding:0 2px}
+.res-empty{padding:6px 10px;font-size:.92rem;line-height:1.5}
+.res-empty p{margin:0 0 8px}
+.res-empty .muted{color:var(--rail-muted)}
+.res-tip{padding:10px 10px 0;color:var(--rail-muted);font-size:.8rem}
+
+/* ---------- bay-number signs ---------- */
+.cap{position:relative;display:inline-grid;place-items:center;flex:none;width:1.5em;height:1.5em;color:var(--cc,var(--c2));--on:#fff}
+.cap svg{position:absolute;inset:0;width:100%;height:100%}
+.cap b{position:relative;font:800 1em/1 var(--display);color:var(--on);transform:translateY(.04em)}
+.c1{--cc:var(--c1)}.c2{--cc:var(--c2)}.c3{--cc:var(--c3)}.c4{--cc:var(--c4)}
+.c5{--cc:var(--c5)}.c6{--cc:var(--c6)}.c7{--cc:var(--c7)}.c8{--cc:var(--c8)}
+.c4,.c5,.c6,.c8{--on:#18203A}
+
+/* ---------- hero ---------- */
+.hero{display:grid;gap:32px}
+.hero h1{font:800 clamp(2.9rem,9cqi,4.6rem)/.95 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.hero .kind{font:600 1.25rem/1.3 var(--display);color:var(--muted);margin:8px 0 0}
+.hero .pitch{font-size:1.12rem;line-height:1.6;max-width:44ch;margin:18px 0 0}
+.legend{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:2px;max-width:520px}
+.legend button{display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;align-items:start;width:100%;text-align:left;border:0;background:none;color:inherit;border-radius:12px;padding:8px;margin-left:-8px;cursor:pointer;line-height:1.45}
+.legend button:hover,.legend button[aria-pressed="true"]{background:var(--tint)}
+.pinl{display:block;flex:none;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--paper);font:700 .92rem/27px var(--display);text-align:center}
+.legend b{font-weight:600}
+.legend .d{display:block;color:var(--muted);font-size:.94rem}
+.field{margin:0;justify-self:start;width:100%;max-width:372px}
+.field-box{background:var(--surface);border:1px solid var(--line);border-radius:30px;padding:16px;overflow:hidden}
+.field svg{display:block;width:100%;height:auto;overflow:visible}
+.field figcaption{font-size:.86rem;line-height:1.5;color:var(--muted);margin:10px 4px 0}
+.field-foot{display:flex;justify-content:flex-end;margin:8px 4px 0}
+.pause{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 14px;font-size:.85rem;font-weight:500;cursor:pointer}
+.part{transition:opacity .18s ease}
+.field[data-hl] .part{opacity:.2}
+.field[data-hl="A"] .part-A,.field[data-hl="B"] .part-B,.field[data-hl="C"] .part-C,.field[data-hl="D"] .part-D,.field[data-hl="E"] .part-E{opacity:1}
+@container (min-width:780px){
+  .hero{grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:48px;align-items:start}
+  .field{justify-self:end}
+}
+
+/* ---------- lot drawing (hero + element demos) ---------- */
+.scene g,.scene circle,.scene rect,.scene path{transform-box:fill-box;transform-origin:center}
+.f1{fill:var(--c1)}.f2{fill:var(--c2)}.f3{fill:var(--c3)}.f4{fill:var(--c4)}.f5{fill:var(--c5)}.f6{fill:var(--c6)}.f7{fill:var(--c7)}.f8{fill:var(--c8)}
+.fw{fill:#F4F6FA;stroke:#AEB8CA;stroke-width:1}
+.lane{fill:var(--lane)}
+.bay{fill:none;stroke:var(--paint);stroke-width:1.6;stroke-dasharray:5 4}
+.exit{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-dasharray:6 5}
+.slot{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-dasharray:5 5}
+.chev{fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lip{fill:#000;opacity:.26}
+.glass{fill:var(--glass);opacity:.5}
+.roof{fill:#fff;opacity:.2}
+.hidbox{fill:var(--hid)}
+.qmark{font:800 15px var(--display);text-anchor:middle;fill:#fff}
+.hero-q{font-size:22px}
+.done circle{fill:var(--c3);stroke:var(--surface);stroke-width:2}
+.done path{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.ripple{fill:none;stroke:var(--ink);stroke-width:3}
+.veil{fill:var(--veil)}
+.padlock path{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round}
+.padlock rect{fill:#fff}
+.chain{fill:none;stroke:var(--ink);stroke-width:4;stroke-dasharray:6 3;stroke-linecap:round}
+.wd{fill:var(--wood)}
+.crate path{fill:none;stroke:#000;stroke-opacity:.3;stroke-width:1.5}
+.wrapline{fill:none;stroke:var(--surface);stroke-width:1.5;stroke-dasharray:3 3}
+.smoke circle{fill:var(--line)}
+.pin circle{fill:var(--ink);stroke:var(--surface);stroke-width:2}
+.pin text{font:700 12.5px var(--display);text-anchor:middle;fill:var(--paper)}
+.hud{fill:var(--tint)}
+.hudk{font:600 13px var(--body);fill:var(--muted);text-anchor:end}
+.hudv{font:800 19px var(--display);fill:var(--ink);text-anchor:start}
+.demo{margin:14px 0 0;max-width:212px}
+.demo-box{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 8px 6px}
+.demo svg{display:block;width:100%;height:auto;overflow:visible}
+.demo figcaption{font-size:.8rem;line-height:1.45;color:var(--muted);margin:8px 2px 0}
+.demo-btn{position:absolute;right:6px;bottom:6px;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.demo-btn svg{width:11px;height:11px;fill:currentColor}
+.demo-btn .i-play,.demo-btn[aria-pressed="true"] .i-pause{display:none}
+.demo-btn[aria-pressed="true"] .i-play{display:block}
+
+/* ---------- sections ---------- */
+.sec{margin-top:88px}
+.sec>h2{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font:800 2.15rem/1.15 var(--display);margin:0;text-wrap:balance}
+.sec>h2 .cap{width:48px;height:48px;font-size:1.6rem}
+.sec-intro{color:var(--muted);max-width:68ch;margin:10px 0 0}
+.sub>.sec-intro{margin:0 0 14px}
+.sub{margin-top:44px}
+.sub>h3{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;font:700 1.5rem/1.2 var(--display);margin:0 0 12px}
+.sub>h3 .num{color:var(--muted);font-weight:600}
+.wip{font:600 .8rem/1.2 var(--body);background:var(--wip);color:var(--ink);padding:4px 11px;border-radius:999px;white-space:nowrap;align-self:center}
+.empty{color:var(--muted);font-style:italic;margin:0 0 8px}
+.sec>h2 + .ent,.sec>h2 + .tbl,.sec>h2 + .sec-intro + .ent,.sec>h2 + .sec-intro + .tbl{margin-top:22px}
+
+.ent{padding:18px 0 16px;border-top:1px solid var(--line)}
+.ent-h h4,.defs dt{font:700 1.14rem/1.3 var(--display);margin:0}
+.ent-h{min-width:0}
+.orig{display:block;font:500 .82rem/1.3 var(--body);color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0;font-size:.84rem;font-weight:500;line-height:1.35}
+.tags span{display:inline-block;background:var(--tint);color:var(--ink);border-radius:8px;padding:3px 9px}
+.ent-b{margin-top:8px;min-width:0}
+.ent-b>p{margin:0 0 8px;max-width:68ch}
+.defs{margin:0}
+.defs>div{padding:16px 0;border-top:1px solid var(--line)}
+.defs dd{margin:6px 0 0;max-width:68ch;min-width:0}
+@container (min-width:720px){
+  .ent,.defs>div{display:grid;grid-template-columns:200px minmax(0,1fr);gap:8px 32px}
+  .ent-b,.defs dd{margin-top:0}
+}
+
+ul.bl,ul.params{list-style:none;margin:0;padding:0}
+ul.bl>li{position:relative;padding-left:1.2em;margin:0 0 .45em;max-width:68ch}
+ul.bl>li::before{content:"";position:absolute;left:.12em;top:.66em;width:.38em;height:.38em;border-radius:50%;background:var(--muted)}
+ul.bl ul.bl{margin:.4em 0 .2em}
+ul.bl ul.bl>li::before{background:none;border:1.5px solid var(--muted)}
+ol.steps{margin:.5em 0 .3em;padding-left:1.5em;max-width:66ch}
+ol.steps>li{margin:0 0 .35em;padding-left:.2em}
+ol.steps>li::marker{font-weight:700;font-family:var(--display)}
+ol.steps ol.steps{list-style-type:lower-alpha;margin:.35em 0 .35em}
+ol.steps .after{display:block;margin-top:.1em}
+ul.params>li{margin:0 0 .9em;max-width:68ch}
+ul.params>li:last-child{margin-bottom:0}
+ul.params>li>b{display:block;font-weight:600;margin-bottom:2px}
+ul.params>li>span{display:block}
+.note{background:var(--tint);border-radius:14px;padding:12px 16px;max-width:68ch;margin:16px 0 4px;font-size:.95rem}
+.note b{font-weight:600}
+.note ul.bl{margin-top:6px}
+.note ul.bl>li{margin-bottom:.3em}
+.flag{color:var(--warn);font-weight:700;margin-left:2px}
+
+/* ---------- tables ---------- */
+.tbl{overflow-x:auto;margin:6px 0 4px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:540px;font-size:.96rem;line-height:1.5}
+th,td{text-align:left;vertical-align:top;padding:13px 16px;border-bottom:1px solid var(--line)}
+thead th{font-weight:600;font-size:.86rem;color:var(--muted);white-space:nowrap}
+tbody th{font-weight:600}
+tbody tr:last-child>*{border-bottom:0}
+.wide table{min-width:760px}
+.xwide table{min-width:1000px}
+.xwide th,.xwide td{padding:12px 10px}
+.xwide th:first-child,.xwide td:first-child{padding-left:14px}
+.xwide code{font-size:.8em;padding:1px 5px}
+.xwide thead th{white-space:normal;vertical-align:bottom}
+.xwide tbody th[scope=row],.xwide tbody td{white-space:nowrap}
+.xwide tbody td.wrap{white-space:normal;min-width:220px;font-size:.9rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.grp th{background:var(--tint);font-weight:700;padding-block:8px}
+.tbl ul.bl{margin:0}
+.tbl.compact table{min-width:0}
+.gbox .tbl{margin:0;background:var(--surface)}
+.tbl ul.bl>li{margin:0 0 .3em}
+.offers tbody th{width:150px}
+.lvl{font:800 1.35rem/1.1 var(--display)}
+.dash{color:var(--muted)}
+.popup{display:inline-block;white-space:nowrap;font:700 1.02rem/1.25 var(--display);border:2px solid var(--ink);border-radius:12px;padding:6px 13px;text-align:center}
+.gloss{display:block;white-space:nowrap;color:var(--muted);font-size:.87rem;line-height:1.4;margin-top:6px}
+.steps-tbl tbody{counter-reset:st}
+.steps-tbl tbody th{position:relative;padding-left:52px;min-width:200px}
+.steps-tbl tbody th::before{counter-increment:st;content:counter(st);position:absolute;left:16px;top:12px;width:1.55em;height:1.55em;border-radius:50%;background:var(--ink);color:var(--surface);font:700 .9rem/1.6em var(--display);text-align:center}
+.hap{white-space:nowrap}
+.hap i{font-style:normal;letter-spacing:.12em;margin-right:.45em}
+.cat{color:var(--muted)}
+.rc td:first-child{white-space:normal}
+
+/* ---------- unlock timeline ---------- */
+.glance{margin-top:44px}
+.glance h4{font:700 1.14rem/1.3 var(--display);margin:0 0 4px}
+.glance>p{margin:0;color:var(--muted);max-width:68ch;font-size:.95rem}
+.tkey{display:flex;flex-wrap:wrap;gap:6px 18px;list-style:none;margin:12px 0 0;padding:0;font-size:.86rem;color:var(--muted)}
+.tkey li{display:flex;align-items:center;gap:7px}
+.tkey i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ink)}
+.tkey i.boost{background:var(--paper);border:3px solid var(--ink)}
+.tkey i.car{border-radius:3px}
+.timeline{list-style:none;margin:26px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:30px 0}
+.timeline li{position:relative;padding:16px 14px 0 0;border-top:2px solid var(--line);line-height:1.35}
+.timeline li::before{content:"";position:absolute;top:-8px;left:0;width:14px;height:14px;border-radius:50%;background:var(--ink)}
+.timeline li.boost::before{background:var(--paper);border:3.5px solid var(--ink)}
+.timeline li.car::before{border-radius:3px}
+.timeline .lv{display:block;font:800 1.3rem/1.2 var(--display)}
+.timeline .nm{display:block;font-weight:600;font-size:.95rem}
+.timeline .nm a{color:inherit}
+.timeline .kd{display:block;color:var(--muted);font-size:.84rem}
+
+/* ---------- panels, tiles, flow ---------- */
+code{font:500 .9em/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--tint);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.gbox code,.node code,.state code{background:var(--paper)}
+.ent.sys{padding:28px 0 30px}
+.ent-b>p.lead{margin:0 0 16px}
+.gbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px 18px;margin:0 0 14px}
+.gbox:last-child{margin-bottom:0}
+.gbox-h{font:700 1.06rem/1.3 var(--display);margin:0 0 12px}
+.gbox-h small{display:block;font:500 .86rem/1.4 var(--body);color:var(--muted);margin-top:1px}
+.gbox>p{margin:0 0 10px;max-width:68ch}
+.gbox>:last-child{margin-bottom:0}
+.gbox .note{margin:14px 0 0;max-width:none}
+.tiles{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
+.tiles li{background:var(--tint);border-radius:12px;padding:10px 14px 11px;line-height:1.35}
+.tiles .tv{display:block;font:800 1.45rem/1.15 var(--display)}
+.tiles .tk{display:block;font-size:.88rem;color:var(--muted);margin-top:2px}
+.tiles li.hot{background:var(--ink);color:var(--paper)}
+.tiles li.hot .tk{color:inherit;opacity:.85}
+.ent-b>.tiles{margin-bottom:16px}
+.ent-b>.tiles li{background:var(--surface);border:1px solid var(--line)}
+.ent-b>.tiles li.hot{background:var(--ink);border-color:var(--ink)}
+.cases{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.cases li{background:var(--tint);border-radius:12px;padding:10px 14px;font-weight:500;line-height:1.4}
+.kv{margin:0}
+.kv>div{padding:11px 0;border-top:1px solid var(--line)}
+.kv>div:first-child{border-top:0;padding-top:0}
+.kv>div:last-child{padding-bottom:0}
+.kv dt{font-weight:600}
+.kv dd{margin:2px 0 0;min-width:0}
+@container (min-width:640px){
+  .kv>div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:18px}
+  .kv dd{margin:0}
+}
+.parts{list-style:none;margin:0;padding:0;display:grid;gap:12px;max-width:68ch}
+.parts li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;align-items:start;line-height:1.5}
+.parts b{display:block;font-weight:600}
+.parts .d{display:block}
+.flow{max-width:660px}
+.node{background:var(--tint);border-radius:12px;padding:10px 14px 11px}
+.node p{margin:0}
+.node .k{display:block;font:600 .82rem/1.4 var(--body);color:var(--muted)}
+.node .cond{font-weight:600;margin-bottom:4px}
+.node ul.bl{margin-top:4px}
+.node ul.bl>li{margin-bottom:.2em}
+.arrow{text-align:center;color:var(--muted);font-size:1.15rem;line-height:1;padding:5px 0 6px}
+.split{display:grid;gap:8px 12px}
+@container (min-width:600px){.split{grid-template-columns:1fr 1fr}}
+.yn{display:inline-block;font:700 .82rem/1.2 var(--display);border-radius:999px;padding:3px 10px 2px;margin-right:8px;background:var(--ink);color:var(--paper);vertical-align:.08em}
+.yn.no{background:none;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.fx{display:block;margin-top:6px}
+.fx code{white-space:normal;display:inline-block;padding:3px 8px}
+/* car ID key */
+.idkey{display:grid;gap:14px;margin:4px 0 0;max-width:620px}
+.idh{margin:0 0 6px;font-weight:600}
+.idlist{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+.idlist li{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;line-height:1.3;min-width:0}
+.idlist code{font-size:.95em;font-weight:700}
+.idlist .mini{flex:none;width:18px;height:21px}
+.idex{margin:14px 0 0;display:flex;flex-wrap:wrap;gap:8px 18px}
+.idex span{white-space:nowrap}
+.lvgrid{display:grid;gap:8px;max-width:620px;margin:12px 0 4px}
+.lvrow{display:grid;grid-template-columns:clamp(64px,22%,130px) minmax(0,1fr);gap:10px;align-items:center}
+.lvk{font-weight:600;font-size:.86rem;line-height:1.3;color:var(--muted)}
+.lvcells{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:clamp(3px,.9cqi,6px);justify-items:center;align-items:center}
+.lvcells .sq{display:grid;place-items:center;width:100%;aspect-ratio:1;max-width:100%;border-radius:8px;background:var(--surface);border:1px solid var(--line);font:700 clamp(.72rem,2.4cqi,1rem)/1 var(--display)}
+.lvcells .sq.hard{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.lvcells .nw{font:700 .7rem/1 var(--display);background:var(--c1);color:#fff;border-radius:999px;padding:4px 6px 3px;white-space:nowrap}
+
+/* live-ops state cards */
+.states{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.state{background:var(--tint);border-radius:12px;padding:12px 14px}
+.state .sn{margin:0 0 6px;font-weight:600;line-height:1.5}
+.state .sn small{display:block;font-weight:500;color:var(--muted);font-size:.86rem}
+.state>p{margin:0 0 8px}
+.go{list-style:none;margin:0;padding:8px 0 0;border-top:1px solid var(--line)}
+.go li{margin:0 0 .25em;padding-left:1.3em;text-indent:-1.3em}
+.go li::before{content:"→ ";color:var(--muted);font-weight:700}
+
+/* win-screen gauge */
+.gauge{max-width:400px}
+.gauge svg{display:block;width:100%;height:auto;overflow:visible}
+.gseg{stroke:var(--surface);stroke-width:2;transition:opacity .2s}
+.g2{fill:var(--c2)}.g3{fill:var(--c3)}.g5{fill:var(--c4)}
+.gauge.stopped .gseg:not(.on){opacity:.3}
+.gseg.on{stroke:var(--ink);stroke-width:3}
+.glab{font:800 17px var(--display);text-anchor:middle;fill:#fff;pointer-events:none}
+.glab.l{fill:#18203A}
+.needle{fill:var(--ink)}
+.hub{fill:var(--ink);stroke:var(--surface);stroke-width:3}
+.gbase{margin:6px 0 0;text-align:center;color:var(--muted);font-size:.9rem}
+.gctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:14px}
+.gctl>span{display:flex;align-items:center;gap:8px}
+.gctl .pinl{width:22px;height:22px;font-size:.8rem;line-height:23px}
+.gbtn{border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 18px;font-weight:600;cursor:pointer;min-height:40px}
+.gbtn.primary{background:var(--ink);color:var(--paper)}
+.gres{margin:12px 0 0;font-weight:500;min-height:3.2em;max-width:52ch}
+.gres strong{font:800 1.15rem/1.2 var(--display)}
+
+/* ---------- search hits in the page ---------- */
+mark.hit{background:var(--mark);color:#18203A;border-radius:3px;padding:0 1px}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,35%{background-color:var(--flash)}100%{background-color:transparent}}
+
+/* ---------- small screens: rail becomes a top bar ---------- */
+@media (max-width:959px){
+  :root{--bar-h:60px}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--rail)}
+  .app{display:block}
+  main{padding-top:28px}
+  .rail{height:auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px}
+  .brand{display:none}
+  .menu-btn{order:1;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:12px;background:rgba(255,255,255,.1);color:inherit;cursor:pointer}
+  .menu-btn svg{width:20px;height:20px}
+  .search{order:2;margin:0}
+  .search input{padding-right:78px}
+  .search input:placeholder-shown{padding-right:10px}
+  .lang{order:3;margin:0}
+  .lang button{padding:11px 11px}
+  .lang .full,.hint.key{display:none}
+  .lang .short{display:inline}
+  .panel{display:none;position:absolute;left:0;right:0;top:100%;max-height:min(70vh,560px);background:var(--rail);
+    border-top:1px solid var(--rail-line);box-shadow:0 22px 36px rgba(8,11,22,.4);padding:10px 10px 18px}
+  .rail[data-open="1"] .panel{display:block}
+  .res-tip{display:none}
+  .sec{margin-top:64px}
+  .sec>h2{font-size:1.8rem}
+  .sec>h2 .cap{width:42px;height:42px;font-size:1.4rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .part,.gseg{transition:none}
+}
+@media print{
+  .rail,.field-foot,.demo-btn,.gctl{display:none}
+  .app{display:block}
+  main{padding:0;max-width:none}
+  .sec{margin-top:40px}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="cap" viewBox="0 0 100 100">
+      <rect x="4" y="4" width="92" height="92" rx="24" fill="currentColor"/>
+      <rect x="4" y="4" width="92" height="92" rx="24" fill="none" stroke="#000" stroke-opacity=".14" stroke-width="2"/>
+      <rect x="12" y="12" width="76" height="76" rx="17" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <header class="rail" id="rail" data-view="toc" data-open="">
+    <a class="brand" href="#top">
+      <span class="cap c2"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#cap"/></svg><b>P</b></span>
+      <span>Sort The Lot<small id="brandSub">Game design document</small></span>
+    </a>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="panel" aria-label="Contents">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9"/></svg>
+    </button>
+    <div class="lang" id="langSwitch" role="group" aria-label="Language">
+      <button type="button" data-set-lang="en" aria-pressed="true" lang="en"><span class="full">English</span><span class="short">EN</span></button>
+      <button type="button" data-set-lang="vi" aria-pressed="false" lang="vi"><span class="full">Tiếng Việt</span><span class="short">VI</span></button>
+    </div>
+    <div class="search" role="search">
+      <svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>
+      <input id="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Search the GDD" aria-label="Search the GDD">
+      <div class="search-r">
+        <span class="hint key" id="hint" aria-hidden="true">/</span>
+        <button class="clr" id="clr" type="button" hidden aria-label="Clear search">×</button>
+      </div>
+    </div>
+    <div class="panel" id="panel">
+      <div id="results"></div>
+      <div class="sr" id="status" role="status"></div>
+      <nav class="toc" id="toc" aria-label="Contents"></nav>
+    </div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- small helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const f1=n=>+(+n).toFixed(1);
+const cap=(c,label)=>`<span class="cap c${c}" data-nosearch><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#cap"/></svg>${label!=null?`<b>${label}</b>`:''}</span>`;
+
+/* ---------- document outline ---------- */
+const SECTIONS=[
+  {id:'game-mechanics',n:'1',c:1,en:'Game mechanics',vi:'Cơ chế trò chơi',subs:[
+    {id:'gameplay-overview',n:'1.1',en:'Gameplay overview',vi:'Tổng quan lối chơi'},
+    {id:'main-game-mechanics',n:'1.2',en:'Main game mechanics',vi:'Cơ chế chính'},
+    {id:'additional-mechanics',n:'1.3',en:'Additional mechanics',vi:'Cơ chế bổ sung'},
+    {id:'win-screen-bonus',n:'1.4',en:'Win screen bonus',vi:'Thưởng thêm ở màn hình thắng'},
+    {id:'elements-mechanics',n:'1.5',en:'Elements',vi:'Yếu tố đặc biệt'},
+    {id:'booster-mechanics',n:'1.6',en:'Boosters',vi:'Công cụ hỗ trợ'}]},
+  {id:'iap--offers',n:'2',c:8,en:'IAP & offers',vi:'Mua trong game & ưu đãi',subs:[
+    {id:'offer-overview',n:'2.1',en:'Offer overview',vi:'Tổng quan ưu đãi'},
+    {id:'session-start-popup',n:'2.2',en:'Session-start popup',vi:'Popup khi mở game'},
+    {id:'starter-pack',n:'2.3',en:'Starter Pack',vi:'Gói Khởi đầu'},
+    {id:'remove-ads',n:'2.4',en:'Remove Ads',vi:'Gỡ quảng cáo'},
+    {id:'store',n:'2.5',en:'Store',vi:'Cửa hàng'},
+    {id:'infinite-lives-format',n:'2.6',en:'Unlimited lives timer',vi:'Đồng hồ tim vô hạn'}]},
+  {id:'live-ops',n:'3',c:6,en:'Live ops',vi:'Tính năng Live Ops',subs:[
+    {id:'limited-time-reward',n:'3.1',en:'Limited Time Reward',vi:'Quà giới hạn thời gian'},
+    {id:'skip-level',n:'3.2',en:'Skip Level',vi:'Bỏ qua màn'},
+    {id:'retry-with-booster',n:'3.3',en:'Retry with Booster',vi:'Chơi lại kèm công cụ'}]},
+  {id:'ftue--tutorial',n:'4',c:2,en:'FTUE & tutorial',vi:'FTUE & hướng dẫn',subs:[
+    {id:'ftue-logic',n:'4.1',en:'FTUE logic',vi:'Cách FTUE hoạt động'},
+    {id:'ftue-steps',n:'4.2',en:'FTUE steps',vi:'Các bước FTUE'},
+    {id:'element-tutorial',n:'4.3',en:'Element tutorial',vi:'Hướng dẫn yếu tố đặc biệt'},
+    {id:'booster-tutorial',n:'4.4',en:'Booster tutorial',vi:'Hướng dẫn công cụ hỗ trợ'}]},
+  {id:'sfx--haptics',n:'5',c:4,en:'SFX & haptics',vi:'Âm thanh & rung'},
+  {id:'change-note',n:'6',c:7,en:'Change note',vi:'Ghi chú thay đổi'}
+];
+const SEC={};
+SECTIONS.forEach(s=>{SEC[s.id]=s;(s.subs||[]).forEach(u=>{SEC[u.id]=u;});});
+
+const UI={
+  en:{sub:'Game design document',search:'Search the GDD',searchShort:'Search',contents:'Contents',language:'Language',clear:'Clear search',
+      matches:n=>n===1?'1 match':n+' matches',none:q=>`No matches for “${q}”.`,tryShort:'Try a shorter or different word.',
+      other:n=>(n===1?'1 match':n+' matches')+' in the Vietnamese version.',switchTo:'Switch to Tiếng Việt',
+      tip:'Enter jumps to the next match. Esc clears.',overview:'Overview',wip:'In progress',
+      pause:'Pause motion',play:'Play motion',pauseDemo:'Pause demo',playDemo:'Play demo',title:'Sort The Lot GDD',
+      moves:'Moves',bonus:'Bonus',again:'Swing again',swing:'Swing',next:'Next level',
+      gTap:'Tap Bonus to stop the needle.',gStart:'Tap Swing to start the needle.',
+      gRes:m=>`<strong>×${m}</strong> → 100 × ${m} = ${100*m} coins. In the game, the rewarded ad plays after a 1-second pause, then the coins fly in.`,
+      gNext:'<strong>100 coins</strong>. The player skips the bonus and takes the base reward.'},
+  vi:{sub:'Tài liệu thiết kế game',search:'Tìm trong tài liệu',searchShort:'Tìm kiếm',contents:'Mục lục',language:'Ngôn ngữ',clear:'Xóa tìm kiếm',
+      matches:n=>n+' kết quả',none:q=>`Không tìm thấy “${q}”.`,tryShort:'Hãy thử từ khóa ngắn hơn hoặc từ khác.',
+      other:n=>`Có ${n} kết quả trong bản tiếng Anh.`,switchTo:'Chuyển sang English',
+      tip:'Nhấn Enter để tới kết quả kế tiếp. Nhấn Esc để xóa.',overview:'Tổng quan',wip:'Đang viết',
+      pause:'Dừng chuyển động',play:'Chạy chuyển động',pauseDemo:'Dừng minh họa',playDemo:'Chạy minh họa',title:'Sort The Lot GDD',
+      moves:'Lượt',bonus:'Thưởng thêm',again:'Cho kim chạy lại',swing:'Cho kim chạy',next:'Màn tiếp theo',
+      gTap:'Chạm “Thưởng thêm” để dừng kim.',gStart:'Chạm “Cho kim chạy” để kim bắt đầu lắc.',
+      gRes:m=>`<strong>×${m}</strong> → 100 × ${m} = ${100*m} xu. Trong game, quảng cáo có thưởng sẽ chạy sau 1 giây, rồi xu bay vào.`,
+      gNext:'<strong>100 xu</strong>. Người chơi bỏ qua phần thưởng thêm và nhận phần thưởng gốc.'}
+};
+
+/* ---------- drawing helpers: cars seen from above, nose toward the front row ---------- */
+function T(x,y,s){return `translate(${x}px,${y}px) scale(${s==null?1:s})`;}
+function car(x,y,w,h,c,hid,qcls){
+  const r=f1(w*.28),b=hid?'hidbox':(c===7?'fw':'f'+c);  /* car colors: 1 red … 6 orange, 7 white */
+  let s=`<rect class="${b}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/><rect class="lip" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`+
+        `<rect class="${b}" x="${x}" y="${y}" width="${w}" height="${h-3}" rx="${r}"/>`+
+        `<rect class="glass" x="${f1(x+w*.17)}" y="${f1(y+h*.62)}" width="${f1(w*.66)}" height="${f1(h*.16)}" rx="${f1(w*.07)}"/>`+
+        `<rect class="glass" x="${f1(x+w*.22)}" y="${f1(y+h*.1)}" width="${f1(w*.56)}" height="${f1(h*.1)}" rx="${f1(w*.05)}"/>`+
+        `<rect class="roof" x="${f1(x+w*.22)}" y="${f1(y+h*.26)}" width="${f1(w*.56)}" height="${f1(h*.3)}" rx="${f1(w*.1)}"/>`;
+  if(hid)s+=`<text class="qmark${qcls?' '+qcls:''}" x="${f1(x+w/2)}" y="${f1(y+h*.41)}" dy=".35em">?</text>`;
+  return s;
+}
+function pin(x,y,l){return `<g class="pin"><circle cx="${x}" cy="${y}" r="11"/><text x="${x}" y="${y}" dy=".34em">${l}</text></g>`;}
+function done(cx,cy,r){r=r||10;return `<g class="done" style="opacity:0"><circle cx="${cx}" cy="${cy}" r="${r}"/><path d="M${f1(cx-r*.45)} ${cy}l${f1(r*.3)} ${f1(r*.3)} ${f1(r*.6)} ${f1(-r*.65)}"/></g>`;}
+function padlock(cx,cy){return `<g class="padlock"><path d="M${cx-4.5},${cy-1}v-3.5a4.5,4.5 0 0 1 9,0v3.5"/><rect x="${cx-7}" y="${cy-1}" width="14" height="11" rx="2.5"/></g>`;}
+const doneTracks=(t,keep)=>[['.done','opacity',keep?[[0,0],[t,0],[t+.2,1],[keep,1],[keep+.2,0]]:[[0,0],[t,0],[t+.2,1]]],['.done','transform',[[t,'scale(.3)'],[t+.3,'scale(1)']]]];
+
+/* element demos: three columns, a waiting spot under them */
+const DCX=[20,85,150],DY=[42,80,118],CW=30,CH=34,WX=85,WY=170;
+function dlanes(extra){
+  return DCX.map(x=>`<rect class="lane" x="${x-4}" y="36" width="38" height="122" rx="8"/><path class="bay" d="M${x-4} 77.5h38M${x-4} 115.5h38"/><path class="chev" d="M${x+10} 20l5 5 5-5"/>`).join('')+
+    (extra||'')+`<path class="exit" d="M8 163H192"/><rect class="slot" x="81" y="166" width="38" height="42" rx="8"/>`;
+}
+const dcar=(k,row,c,cls,hid)=>`<g${cls?` class="${cls}"`:''}>${car(DCX[k],DY[row],CW,CH,c,hid)}</g>`;
+const dcol=(k,cs)=>cs.map((c,i)=>dcar(k,i,c)).join('');
+const dwait=c=>`<g class="w">${car(WX,WY,CW,CH,c)}</g>`;
+/* one move into column k: waiting car to the back, column forward, front car out to the waiting spot */
+function moveTracks(k,t){
+  const dx=DCX[k]-WX;
+  return [
+    ['.w','transform',[[t,T(0,0)],[t+.45,T(f1(dx/2),-83,1.1)],[t+.9,T(dx,-166)],[t+1.1,T(dx,-166)],[t+1.6,T(dx,-128)]]],
+    ['.r0','transform',[[t+1.1,T(0,0)],[t+1.6,T(0,38)]]],
+    ['.r1','transform',[[t+1.1,T(0,0)],[t+1.6,T(0,38)]]],
+    ['.r2','transform',[[t+1.1,T(0,0)],[t+1.75,T(WX-DCX[k],52)]]]
+  ];
+}
+function shell(k,row,c){const x=DCX[k],y=DY[row];return `<g class="sh">${car(x-2,y-2,CW+4,CH+4,c)}<rect class="wrapline" x="${x-0.5}" y="${y-0.5}" width="${CW+1}" height="${CH+1}" rx="9"/></g>`;}
+function crate(x,y){
+  const plank=(x0)=>`<path d="M${x0+2} ${y+12}h13M${x0+2} ${y+25}h13M${x0+3} ${y+3}l11 32"/>`;
+  return `<g class="crate"><g class="cl"><rect class="wd" x="${x}" y="${y}" width="17" height="38" rx="4"/>${plank(x)}</g><g class="cr"><rect class="wd" x="${x+17}" y="${y}" width="17" height="38" rx="4"/>${plank(x+17)}</g></g>`;
+}
+
+const DEMOS={
+  hidden:{D:6.4,
+    svg:()=>dlanes()+dcol(1,[4,5,7])+dcol(2,[7,6,2])+
+      `<g class="r0">${car(DCX[0],DY[0],CW,CH,2)}</g>`+
+      `<g class="r1"><g class="hid">${car(DCX[0],DY[1],CW,CH,0,true)}</g><g class="rev" style="opacity:0">${car(DCX[0],DY[1],CW,CH,6)}</g></g>`+
+      `<g class="r2">${car(DCX[0],DY[2],CW,CH,1)}</g>`+dwait(3)+
+      `<g class="smoke"><circle cx="27" cy="128" r="10" style="opacity:0"/><circle cx="45" cy="131" r="11" style="opacity:0"/><circle cx="35" cy="144" r="12" style="opacity:0"/><circle cx="31" cy="121" r="8" style="opacity:0"/></g>`,
+    tracks:()=>moveTracks(0,.5).concat([
+      ['.hid','opacity',[[0,1],[2.45,1],[2.6,0]]],
+      ['.rev','opacity',[[0,0],[2.45,0],[2.6,1]]],
+      ['.smoke circle','transform',[[2.2,'scale(.3)'],[2.95,'scale(1.4)']]],
+      ['.smoke circle','opacity',[[0,0],[2.2,0],[2.35,.95],[2.95,0]]]
+    ])},
+  lockedCol:{D:6.8,
+    svg:()=>dlanes()+dcol(0,[6,7,5])+
+      `<g class="lock"><rect class="veil" x="16" y="36" width="38" height="122" rx="8"/>${padlock(35,95)}</g>`+
+      `<g class="pin cdg"><circle cx="52" cy="38" r="9.5"/><text class="v0" x="52" y="38" dy=".35em">1</text><text class="v1" x="52" y="38" dy=".35em" style="opacity:0">0</text></g>`+
+      dcar(1,0,1,'r0')+dcar(1,1,1,'r1')+dcar(1,2,2,'r2')+dcol(2,[3,4,7])+dwait(1)+done(100,26),
+    tracks:()=>moveTracks(1,.5).concat(doneTracks(2.4),[
+      ['.cdg .v0','opacity',[[0,1],[2.7,1],[2.82,0]]],
+      ['.cdg .v1','opacity',[[0,0],[2.7,0],[2.82,1]]],
+      ['.cdg','opacity',[[0,1],[3.1,1],[3.4,0]]],
+      ['.lock','opacity',[[0,1],[3.1,1],[3.5,0]]]
+    ])},
+  colored:{D:6,
+    svg:()=>dlanes(`<rect class="f5" x="81" y="36" width="38" height="122" rx="8" opacity=".25"/><rect class="f5" x="81" y="152" width="38" height="6" rx="3"/>`)+
+      dcol(0,[1,2,1])+dcar(1,0,5,'r0')+dcar(1,1,5,'r1')+dcar(1,2,4,'r2')+dcol(2,[3,5,7])+dwait(5)+done(100,26),
+    tracks:()=>moveTracks(1,.5).concat(doneTracks(2.4))},
+  /* tap column 1: waiting car → back of column 1, column 1's front car → back of column 2, column 2's front car → waiting spot */
+  connected:{D:7.4,
+    svg:()=>dlanes()+
+      dcar(0,0,3,'a0')+dcar(0,1,2,'a1')+dcar(0,2,4,'a2')+
+      dcar(1,0,1,'b0')+dcar(1,1,5,'b1')+dcar(1,2,6,'b2')+dcol(2,[7,6,2])+dwait(4)+
+      `<g class="ch"><line class="chain chl" x1="49" y1="97" x2="67.5" y2="97"/><line class="chain chr" x1="67.5" y1="97" x2="86" y2="97"/></g>`,
+    tracks:()=>[
+      ['.w','transform',[[.5,T(0,0)],[.95,T(-32,-83,1.1)],[1.4,T(-65,-166)],[1.5,T(-65,-166)],[2.1,T(-65,-128)]]],
+      ['.a0','transform',[[1.5,T(0,0)],[2.1,T(0,38)]]],
+      ['.a1','transform',[[1.5,T(0,0)],[2.1,T(0,38)]]],
+      ['.a2','transform',[[1.5,T(0,0)],[1.8,T(32,-38,1.1)],[2.1,T(65,-76)]]],
+      ['.b0','transform',[[1.5,T(0,0)],[2.1,T(0,38)]]],
+      ['.b1','transform',[[1.5,T(0,0)],[2.1,T(0,38)]]],
+      ['.b2','transform',[[1.5,T(0,0)],[2.1,T(0,52)]]],
+      ['.ch','transform',[[1.5,T(0,0)],[2.1,T(0,38)]]],
+      ['.chl','transform',[[2.4,T(0,0)],[2.9,T(-7,10)]]],
+      ['.chr','transform',[[2.4,T(0,0)],[2.9,T(7,10)]]],
+      ['.chl','opacity',[[0,1],[2.4,1],[2.9,0]]],
+      ['.chr','opacity',[[0,1],[2.4,1],[2.9,0]]]
+    ]},
+  wooden:{D:6.6,
+    svg:()=>dlanes()+dcol(0,[2,7])+`<g>${car(DCX[0],DY[2],CW,CH,6)}</g>`+crate(DCX[0]-2,DY[2]-2)+
+      dcar(1,0,3,'r0')+dcar(1,1,3,'r1')+dcar(1,2,2,'r2')+dcol(2,[5,1,4])+dwait(3)+done(100,26),
+    tracks:()=>moveTracks(1,.5).concat(doneTracks(2.4),[
+      ['.cl','transform',[[2.7,'translate(0px,0px) rotate(0deg)'],[3.25,'translate(-12px,10px) rotate(-24deg)']]],
+      ['.cr','transform',[[2.7,'translate(0px,0px) rotate(0deg)'],[3.25,'translate(12px,10px) rotate(24deg)']]],
+      ['.crate','opacity',[[0,1],[2.85,1],[3.25,0]]]
+    ])},
+  double:{D:6.8,
+    svg:()=>dlanes()+dcol(0,[5,4,2])+
+      `<g class="r0">${car(DCX[1],DY[0],CW,CH,1)}${shell(1,0,6)}</g>`+
+      `<g class="r1">${car(DCX[1],DY[1],CW,CH,2)}${shell(1,1,6)}</g>`+
+      dcar(1,2,3,'r2')+dcol(2,[7,4,1])+
+      `<g class="w">${car(WX,WY,CW,CH,5)}<g class="sh">${car(WX-2,WY-2,CW+4,CH+4,6)}<rect class="wrapline" x="${WX-.5}" y="${WY-.5}" width="${CW+1}" height="${CH+1}" rx="9"/></g></g>`+done(100,26),
+    tracks:()=>moveTracks(1,.5).concat(doneTracks(2.4,3.2),[
+      ['.sh','transform',[[2.75,'scale(1)'],[3.15,'scale(1.3)']]],
+      ['.sh','opacity',[[0,1],[2.75,1],[3.15,0]]]
+    ])},
+  /* the hero sketch: one full move that completes column 2 */
+  hero:{D:7.2,fade:'.lf',
+    svg:null,
+    tracks:()=>[
+      ['.ripple','transform',[[.5,'scale(.4)'],[1.05,'scale(1.6)']]],
+      ['.ripple','opacity',[[0,0],[.5,0],[.55,.9],[1.05,0]]],
+      ['.hv0','opacity',[[0,1],[1.0,1],[1.12,0]]],
+      ['.hv1','opacity',[[0,0],[1.0,0],[1.12,1]]],
+      ['.hw','transform',[[1.0,T(0,0)],[1.45,T(-19,-166,1.08)],[1.9,T(-38,-333)],[2.05,T(-38,-333)],[2.55,T(-38,-273)]]],
+      ['.h0','transform',[[2.05,T(0,0)],[2.55,T(0,60)]]],
+      ['.h1','transform',[[2.05,T(0,0)],[2.55,T(0,60)]]],
+      ['.h2','transform',[[2.05,T(0,0)],[2.55,T(0,60)]]],
+      ['.h3','transform',[[2.05,T(0,0)],[2.7,T(38,93)]]]
+    ].concat(doneTracks(2.85))}
+};
+
+function heroSVG(label,movesLabel){
+  const LX=i=>24+i*76,HY=[116,176,236,296],W=46,H=52;
+  const cols=[[2,4,2,5],[3,3,3,1],[6,7,4,6],[5,1,7,2]];
+  const cx=i=>LX(i)+9;
+  let lanes='',back='',mid='',front='',chev='';
+  for(let i=0;i<4;i++){
+    lanes+=`<rect class="lane" x="${LX(i)}" y="108" width="64" height="252" rx="12"/><path class="bay" d="M${LX(i)} 172h64M${LX(i)} 232h64M${LX(i)} 292h64"/>`;
+    chev+=`<path class="chev" d="M${LX(i)+25} 94l7 7 7-7"/>`;
+    if(i===1)continue;
+    back+=`<g>${car(cx(i),HY[0],W,H,cols[i][0])}</g>`;
+    mid+=`<g>${car(cx(i),HY[1],W,H,cols[i][1])}</g><g>${car(cx(i),HY[2],W,H,cols[i][2])}</g>`;
+    front+=`<g>${car(cx(i),HY[3],W,H,cols[i][3])}</g>`;
+  }
+  const h=n=>`<g class="h${n} lf">${car(cx(1),HY[n],W,H,cols[1][n])}</g>`;
+  return `<svg viewBox="0 0 340 460" role="img" aria-label="${esc(label)}"><g class="scene">
+    <g class="part part-C">${lanes}${mid}${h(1)}${h(2)}${pin(170,86,'C')}</g>
+    <g class="part part-D">${chev}${back}${h(0)}${pin(12,142,'D')}</g>
+    <g class="part part-B"><path class="exit" d="M18 370H322"/>${front}${h(3)}${pin(12,322,'B')}</g>
+    <g class="part part-E"><rect class="hud" x="112" y="6" width="116" height="36" rx="18"/><text class="hudk" x="184" y="24" dy=".35em">${esc(movesLabel)}</text>
+      <text class="hudv hv0" x="192" y="24" dy=".35em">12</text><text class="hudv hv1" x="192" y="24" dy=".35em" style="opacity:0">11</text>${pin(100,24,'E')}</g>
+    <g class="part part-A"><rect class="slot" x="139" y="382" width="62" height="66" rx="12"/><g class="hw lf">${car(147,389,W,H,3)}</g>${pin(124,415,'A')}</g>
+    <circle class="ripple" cx="132" cy="322" r="18" style="opacity:0"/>
+    <g class="lf">${done(132,98,13)}</g>
+  </g></svg>`;
+}
+
+/* win-screen bonus gauge */
+const MULT=[2,3,5,3,2],GX=130,GY=132,GR=112,Gr=60;
+function gaugeSVG(label){
+  const P=(rad,deg)=>{const a=deg*Math.PI/180;return [f1(GX+rad*Math.cos(a)),f1(GY-rad*Math.sin(a))];};
+  let s='';
+  MULT.forEach((m,i)=>{
+    const a1=180-36*i,a2=180-36*(i+1);
+    const [x1,y1]=P(GR,a1),[x2,y2]=P(GR,a2),[x3,y3]=P(Gr,a2),[x4,y4]=P(Gr,a1);
+    s+=`<path class="gseg g${m}" data-seg="${i}" d="M${x1} ${y1}A${GR} ${GR} 0 0 1 ${x2} ${y2}L${x3} ${y3}A${Gr} ${Gr} 0 0 0 ${x4} ${y4}Z"/>`;
+    const [lx,ly]=P((GR+Gr)/2,(a1+a2)/2);
+    s+=`<text class="glab${m===5?' l':''}" x="${lx}" y="${ly}" dy=".35em">×${m}</text>`;
+  });
+  return `<svg viewBox="0 0 260 146" role="img" aria-label="${esc(label)}">${s}
+    <g id="needle"><path class="needle" d="M${GX-4} ${GY}L${GX} ${GY-GR+8}L${GX+4} ${GY}Z"/></g><circle class="hub" cx="${GX}" cy="${GY}" r="10"/>
+    ${pin(12,22,'A')}${pin(GX+28,GY+2,'B')}</svg>`;
+}
+
+/* ---------- page content (English, Vietnamese) ---------- */
+let heroPaused=false;
+function view(l){
+  const vi=l==='vi';
+  const t=(en,v)=>vi?v:en;
+  const ui=UI[l];
+  const ul=items=>`<ul class="bl">${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+  const ol=items=>`<ol class="steps">${items.map(i=>`<li>${i}</li>`).join('')}</ol>`;
+  const params=items=>`<ul class="params">${items.map(([a,b])=>`<li class="blk"><b>${a}</b><span>${b}</span></li>`).join('')}</ul>`;
+  const nm=(en,v)=>vi?`${v} <span class="orig">${en}</span>`:en;
+  const ent=(name,body,tags,dm)=>`<div class="ent"><div class="ent-h"><h4>${name}</h4>${tags?`<p class="tags">${[].concat(tags).map(x=>`<span>${x}</span>`).join(' ')}</p>`:''}${dm||''}</div><div class="ent-b">${body}</div></div>`;
+  const defs=pairs=>`<dl class="defs">${pairs.map(([a,b])=>`<div class="blk"><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`;
+  const table=(label,heads,rows,cls)=>`<div class="tbl ${cls||''}" tabindex="0" role="region" aria-label="${esc(label)}"><table><thead><tr>${heads.map(h=>`<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>i===0?`<th scope="row">${c}</th>`:`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const popup=(text,v)=>`<span class="popup" lang="en">${text}</span>${vi?`<span class="gloss">${v}</span>`:''}`;
+  const dash=`<span class="dash">–</span>`;
+  const lvl=n=>`<span class="lvl">${n}</span>`;
+  const tbd=`<span class="dash">${t('Not set yet','Chưa chốt')}</span>`;
+  const wip=`<span class="wip">${ui.wip}</span>`;
+  const unlock=n=>t(`Unlocks at level ${n}`,`Mở ở màn ${n}`);
+  const unlockB=n=>[unlock(n),t(`3 free`,`Tặng 3 lượt`)];
+  const hap=n=>n?`<span class="hap"><i aria-hidden="true" data-nosearch>${'●'.repeat(n)+'○'.repeat(3-n)}</i>${[0,t('Weak','Nhẹ'),t('Medium','Vừa'),t('Strong','Mạnh')][n]}</span>`:dash;
+  const sys=(name,body,tags)=>ent(name,body,tags).replace('<div class="ent">','<div class="ent sys">');
+  const panel=(title,body,sub)=>`<div class="gbox"><h5 class="gbox-h blk">${title}${sub?`<small>${sub}</small>`:''}</h5>${body}</div>`;
+  const tiles=items=>`<ul class="tiles">${items.map(([v,k,cls])=>`<li${cls?` class="${cls}"`:''}><span class="tv">${v}</span><span class="tk">${k}</span></li>`).join('')}</ul>`;
+  const kv=pairs=>`<dl class="kv">${pairs.map(([k,v])=>`<div class="blk"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>`;
+  const lead=x=>`<p class="lead">${x}</p>`;
+  const note=(title,body)=>`<div class="note"><p style="margin:0"><b>${title}</b></p>${body}</div>`;
+  const see=(id,label)=>`<a href="#${id}">${label||(SEC[id].n+' '+SEC[id][l])}</a>`;
+  const flag=tip=>`<span class="flag" data-nosearch title="${esc(tip)}">†</span>`;
+  const arrow=`<div class="arrow" aria-hidden="true" data-nosearch>↓</div>`;
+
+  const N={
+    hidden:nm('Hidden Car','Xe ẩn'),lockedCol:nm('Locked Column','Cột bị khóa'),colored:nm('Colored Column','Cột màu'),
+    connected:nm('Connected Cars','Xe nối'),wooden:nm('Wooden Box','Thùng gỗ'),double:nm('Double Layer','Xe hai lớp'),
+    roadster:nm('Roadster','Xe thể thao Roadster'),truck:nm('Surprise Truck','Xe tải Surprise Truck'),
+    undo:nm('Undo','Hoàn tác'),swap:nm('Swap','Đổi chỗ'),magnet:nm('Magnet','Nam châm')
+  };
+  const P={
+    hidden:t('Hidden Car','Xe ẩn'),lockedCol:t('Locked Column','Cột bị khóa'),colored:t('Colored Column','Cột màu'),connected:t('Connected Cars','Xe nối'),
+    wooden:t('Wooden Box','Thùng gỗ'),double:t('Double Layer','Xe hai lớp'),roadster:'Roadster',truck:'Surprise Truck',
+    undo:t('Undo','Hoàn tác'),swap:t('Swap','Đổi chỗ'),magnet:t('Magnet','Nam châm')
+  };
+  const B={};
+
+  /* ===== 1. Game mechanics ===== */
+  const lvCells=[81,82,83,84,85,86,87,88,89,90];
+  B['gameplay-overview']=
+    ent(t('How it plays','Cách chơi'),ul([
+      t(`The lot is made of columns of parked cars, with one waiting spot in front of them.`,
+        `Bãi xe gồm nhiều cột xe đang đậu, phía trước có một ô chờ.`),
+      t(`The player taps a column. The car in the waiting spot drives into the back of that column, and the car in that column’s front row drives out into the waiting spot.`,
+        `Người chơi chạm vào một cột. Xe đang ở ô chờ sẽ chạy vào cuối cột đó, còn xe ở hàng đầu của cột sẽ chạy ra ô chờ.`),
+      t(`The goal is to sort every column so it holds cars of one color and one type, before the moves run out.`,
+        `Mục tiêu là xếp sao cho mỗi cột chỉ còn xe cùng màu và cùng loại, trước khi hết lượt đi.`)
+    ]))+
+    ent(t('Win and lose','Thắng và thua'),params([
+      [t('Win','Thắng'),t(`Every column holds cars of the same color and the same car type.`,`Cột nào cũng chỉ có xe cùng màu và cùng loại xe.`)],
+      [t('Lose','Thua'),t(`The player runs out of moves before the level is sorted.`,`Người chơi hết lượt đi khi chưa xếp xong màn.`)]
+    ]))+
+    ent(nm('Revive','Hồi sinh'),ul([
+      t(`When the player runs out of moves, they can watch a rewarded ad to revive, get extra moves and keep sorting.`,
+        `Khi hết lượt đi, người chơi có thể xem một quảng cáo có thưởng để hồi sinh, nhận thêm lượt đi và chơi tiếp.`),
+      t(`How many extra moves a revive gives is not set yet.`,`Số lượt đi nhận thêm khi hồi sinh chưa được chốt.`)
+    ]))+
+    ent(nm('Level loop','Lặp lại màn chơi'),ul([
+      t(`Level 80 is the last designed level. After it, the game replays earlier levels.`,
+        `Màn 80 là màn cuối cùng được thiết kế. Sau màn này, trò chơi cho chơi lại các màn trước đó.`),
+      t(`It builds a random list from levels 21–80 and plays through it.`,
+        `Trò chơi tạo một danh sách ngẫu nhiên gồm các màn từ 21 đến 80, rồi lần lượt cho chơi theo danh sách đó.`),
+      t(`Every level where (level_id + 1) is a multiple of 5 is a hard level: 79, 84, 89, 94 … The looped list keeps this pattern, so those slots always get a hard level.`,
+        `Mọi màn có (level_id + 1) chia hết cho 5 đều là màn khó: 79, 84, 89, 94 … Danh sách lặp lại giữ nguyên quy luật này, nên các vị trí đó luôn là màn khó.`)+
+        `<span class="fx"><code>(level_id + 1) mod 5 = 0 → ${t('hard level','màn khó')}</code></span>`,
+      t(`The level number on screen keeps counting up (81, 82, 83 …).`,
+        `Số màn hiện trên màn hình vẫn tiếp tục tăng (81, 82, 83 …).`)
+    ])+`<div class="lvgrid" data-nosearch>
+        <div class="lvrow"><span class="lvk">${t('Level shown','Màn hiển thị')}</span><div class="lvcells">${lvCells.map(n=>`<span class="sq${(n+1)%5===0?' hard':''}">${n}<span class="sr">${(n+1)%5===0?' '+t('hard','khó'):''}, </span></span>`).join('')}</div></div>
+        <div class="lvrow"><span class="lvk">${t('Hard level','Màn khó')}</span><div class="lvcells">${lvCells.map(n=>(n+1)%5===0?`<span class="nw">${t('Hard','Khó')}</span>`:'<span></span>').join('')}</div></div>
+      </div>`)+
+    ent(nm('Auto sort','Tự động xếp'),`<p>${t(`After every move, the game checks whether it can finish a column for the player. See `,`Sau mỗi lượt đi, trò chơi kiểm tra xem có thể giúp người chơi hoàn thành một cột hay không. Xem `)}${see('additional-mechanics')}.</p>`);
+
+  B['main-game-mechanics']=
+    ent(nm('Car','Xe'),ul([
+      t(`Each car has a color and a car type.`,`Mỗi xe có một màu và một loại xe.`),
+      t(`A level is complete when every column holds cars of one color and one type.`,`Màn chơi hoàn thành khi mọi cột chỉ còn xe cùng màu và cùng loại.`),
+      t(`Tapping a column drives the car in the waiting spot into the back of that column.`,`Chạm vào một cột sẽ đưa xe ở ô chờ vào cuối cột đó.`),
+      t(`The column moves forward one place, and the car in its front row drives out into the waiting spot.`,`Cả cột tiến lên một chỗ, và xe ở hàng đầu của cột chạy ra ô chờ.`),
+      t(`New car types join later: Roadster at level 20 and Surprise Truck at level 30.`,`Các loại xe mới xuất hiện dần: Roadster ở màn 20 và Surprise Truck ở màn 30.`)
+    ]))+
+    ent(nm('Car ID','Mã xe'),
+      `<p>${t(`Every car has an ID made of one letter and one number, for example <code>b3</code>. The letter is the car type and the number is the color.`,
+              `Mỗi xe có một mã gồm một chữ cái và một con số, ví dụ <code>b3</code>. Chữ cái là loại xe, con số là màu xe.`)}</p>
+       <div class="idkey">
+         <div class="blk"><p class="idh">${t('Letter = car type','Chữ cái = loại xe')}</p><ul class="idlist">${
+           [['a',t('Basic car','Xe thường')],['b',t('Roadster','Xe thể thao Roadster')],['c',t('Truck','Xe tải')]]
+             .map(([k,v])=>`<li><code>${k}</code><span>${v}</span></li>`).join('')}</ul></div>
+         <div class="blk"><p class="idh">${t('Number = color','Con số = màu')}</p><ul class="idlist">${
+           [t('Red','Đỏ'),t('Blue','Xanh dương'),t('Green','Xanh lá'),t('Yellow','Vàng'),t('Pink','Hồng'),t('Orange','Cam'),t('White','Trắng')]
+             .map((v,i)=>`<li><svg class="mini" viewBox="-1 -1 32 36" aria-hidden="true">${car(0,0,30,34,i+1)}</svg><code>${i+1}</code><span>${v}</span></li>`).join('')}</ul></div>
+       </div>
+       <p class="idex blk"><b>${t('Examples','Ví dụ')}</b>
+         <span><code>a1</code> ${t('red basic car','xe thường màu đỏ')}</span>
+         <span><code>b3</code> ${t('green Roadster','Roadster màu xanh lá')}</span>
+         <span><code>c7</code> ${t('white truck','xe tải màu trắng')}</span></p>`)+
+    ent(nm('Cone','Cọc tiêu'),ul([
+      t(`A cone is a placeholder. It acts like a car and takes up one place.`,`Cọc tiêu là vật giữ chỗ. Nó hoạt động như một chiếc xe và chiếm một chỗ.`),
+      t(`Every level has one cone. When the level is done, the cone ends up in the waiting spot.`,`Màn nào cũng có một cọc tiêu. Khi xếp xong màn, cọc tiêu sẽ nằm ở ô chờ.`),
+      t(`The cone can be moved like a normal car.`,`Cọc tiêu di chuyển được như xe bình thường.`)
+    ]))+
+    ent(nm('Move count','Số lượt đi'),ul([
+      t(`Each level allows a set number of moves.`,`Mỗi màn cho một số lượt đi nhất định.`),
+      t(`Running out of moves before the level is sorted is a loss.`,`Hết lượt đi mà chưa xếp xong màn thì người chơi thua.`)
+    ]))+
+    ent(t('Words used here','Cách gọi trong tài liệu'),params([
+      [t('Waiting spot','Ô chờ'),t(`The single spot in front of the columns. A car leaving a column waits here until the next tap.`,`Ô duy nhất nằm trước các cột. Xe vừa rời cột sẽ đợi ở đây cho tới lần chạm tiếp theo.`)],
+      [t('Front row','Hàng đầu'),t(`The row next to the waiting spot, where cars leave a column. The original notes also call it the “last row”, “line 1” or the “bottom” of a column.`,
+                                   `Hàng nằm sát ô chờ, nơi xe rời khỏi cột. Ghi chú gốc còn gọi hàng này là “last row”, “line 1” hoặc “bottom” của cột.`)],
+      [t('Back of a column','Cuối cột'),t(`The far end of a column, where the waiting car drives in.`,`Đầu xa của cột, nơi xe ở ô chờ đi vào.`)],
+      [t('Complete a column','Hoàn thành một cột'),t(`A column is complete (or “cleared”) when all its cars share one color and one type.`,`Một cột được tính là hoàn thành khi mọi xe trong cột cùng màu và cùng loại.`)]
+    ]));
+
+  B['additional-mechanics']=
+    sys(nm('Auto sort','Tự động xếp'),
+      lead(t(`Auto sort steps in when a column is only one car away from matching the car in the waiting spot.`,
+             `Tự động xếp sẽ giúp người chơi khi một cột chỉ còn lệch đúng một xe so với xe đang ở ô chờ.`))+
+      panel(t('When it checks','Khi nào trò chơi kiểm tra'),
+        `<p>${t(`After any change to the order of cars: a player move, a Swap or a Magnet. The game looks for a column where all of these are true:`,
+                `Sau mỗi lần thứ tự xe thay đổi: người chơi đi một lượt, dùng Đổi chỗ hoặc dùng Nam châm. Trò chơi tìm một cột thỏa tất cả các điều kiện sau:`)}</p>
+         <ul class="cases">
+           <li>${t(`Every car but one matches the car in the waiting spot`,`Mọi xe trong cột, trừ đúng một xe, đều giống xe ở ô chờ`)}</li>
+           <li>${t(`If it is a Colored Column, the cars also match its color and type`,`Nếu là Cột màu, xe còn phải đúng màu và loại của cột`)}</li>
+           <li>${t(`The column is not locked`,`Cột không bị khóa`)}</li>
+           <li>${t(`The column has no Hidden Car`,`Cột không có Xe ẩn`)}</li>
+         </ul>`)+
+      panel(t('What it does','Cách hoạt động'),
+        ol([
+          t(`<b>Find the odd car.</b> Locate the one car that does not match, wherever it is in the column (back, middle or front).`,
+            `<b>Tìm xe bị lệch.</b> Xác định chiếc xe duy nhất không khớp, dù nó nằm ở cuối, giữa hay đầu cột.`),
+          t(`<b>Bring it forward.</b> Move that car to the front row in one step. The other cars shift to fill the gap.`,
+            `<b>Đưa xe lên đầu.</b> Chuyển chiếc xe đó lên hàng đầu chỉ trong một bước. Các xe còn lại dồn vào lấp chỗ trống.`)
+        ])+`<p>${t(`The column is now one tap from complete: the waiting car drives in and the odd car drives out.`,
+                    `Lúc này cột chỉ còn cách một lần chạm là hoàn thành: xe ở ô chờ đi vào và xe bị lệch đi ra.`)}</p>
+         <p class="note">${t(`Undo takes back an auto sort together with the move that caused it. See `,`Hoàn tác sẽ quay lại cả lần tự động xếp lẫn lượt đi đã gây ra nó. Xem `)}${see('booster-mechanics')}.</p>`));
+
+  B['win-screen-bonus']=
+    sys(nm('Bonus gauge','Đồng hồ thưởng'),
+      lead(t(`On the win screen, the player can multiply the level’s coin reward by watching a rewarded ad. A swinging needle picks the multiplier, which turns the ad into a small moment of timing and luck.`,
+             `Ở màn hình thắng, người chơi có thể nhân số xu thưởng của màn bằng cách xem một quảng cáo có thưởng. Một cây kim lắc qua lại sẽ chọn hệ số nhân, khiến việc xem quảng cáo giống một trò thử vận may nho nhỏ.`))+
+      panel(t('Try it','Thử ngay'),
+        `<div class="gauge${G.swing?'':' stopped'}" id="gauge">${gaugeSVG(t('Half-circle bonus gauge with five segments: ×2, ×3, ×5, ×3, ×2, and a needle from the bottom center.','Đồng hồ thưởng hình bán nguyệt gồm năm ô: ×2, ×3, ×5, ×3, ×2, kim nằm ở giữa phía dưới.'))}
+           <p class="gbase">${t('Base reward: 100 coins','Phần thưởng gốc: 100 xu')}</p></div>
+         <div class="gctl" data-nosearch>
+           <span><span class="pinl" aria-hidden="true">C</span><button type="button" class="gbtn primary" id="gBonus">${G.swing?ui.bonus:(G.res?ui.again:ui.swing)}</button></span>
+           <span><span class="pinl" aria-hidden="true">D</span><button type="button" class="gbtn" id="gNext">${ui.next}</button></span>
+         </div>
+         <p class="gres" id="gRes" aria-live="polite" data-nosearch>${gaugeMsg(l)}</p>`,
+        t('A sketch for trying the feel. Speed and odds here are not final.','Bản minh họa để thử cảm giác. Tốc độ và tỉ lệ ở đây chưa phải thông số chính thức.'))+
+      panel(t('Where it sits','Vị trí'),
+        kv([[t('Screen','Màn hình'),t(`Win screen (“Excellent!”)`,`Màn hình thắng (“Excellent!”)`)],
+            [t('Position','Chỗ đặt'),t(`Between the element unlock progress bar and the Bonus button.`,`Nằm giữa thanh tiến độ mở khóa yếu tố và nút Thưởng thêm (Bonus).`)]]))+
+      panel(t('Parts','Thành phần'),
+        `<ul class="parts">
+          <li><span class="pinl" data-nosearch>A</span><span><b>${nm('Bonus gauge','Đồng hồ thưởng')}</b><span class="d">${t(`A half circle split into 5 segments, left to right: ×2 | ×3 | ×5 | ×3 | ×2. The ×5 segment sits in the center.`,`Hình bán nguyệt chia thành 5 ô, từ trái sang phải: ×2 | ×3 | ×5 | ×3 | ×2. Ô ×5 nằm chính giữa.`)}</span></span></li>
+          <li><span class="pinl" data-nosearch>B</span><span><b>${nm('Needle','Kim chỉ')}</b><span class="d">${t(`Sits at the bottom center and keeps swinging left and right across the gauge.`,`Nằm ở giữa phía dưới, liên tục lắc qua trái rồi qua phải trên đồng hồ.`)}</span></span></li>
+          <li><span class="pinl" data-nosearch>C</span><span><b>${nm('Bonus button','Nút Thưởng thêm')}</b><span class="d">${t(`Has a video icon. Stops the needle and plays the rewarded ad.`,`Có biểu tượng video. Dừng kim lại và phát quảng cáo có thưởng.`)}</span></span></li>
+          <li><span class="pinl" data-nosearch>D</span><span><b>${nm('Next Level button','Nút Màn tiếp theo')}</b><span class="d">${t(`Skips the bonus. The player takes the base reward only.`,`Bỏ qua phần thưởng thêm. Người chơi chỉ nhận phần thưởng gốc.`)}</span></span></li>
+        </ul>`)+
+      panel(t('Flow','Diễn biến'),ol([
+        t(`The win screen opens and shows the base coin reward (for example 100). The needle starts swinging.`,`Màn hình thắng mở ra và hiện số xu thưởng gốc (ví dụ 100). Kim bắt đầu lắc.`),
+        t(`The moment the player taps <b>Bonus</b>, the needle stops. The segment it points at becomes this level’s multiplier.`,`Ngay khi người chơi chạm <b>Thưởng thêm</b>, kim dừng lại. Ô mà kim chỉ vào chính là hệ số nhân của màn này.`),
+        t(`After a 1-second pause so the player can see the result, the rewarded ad plays.`,`Sau 1 giây để người chơi kịp thấy kết quả, quảng cáo có thưởng bắt đầu chạy.`),
+        t(`When the ad ends, the reward animation plays with the multiplied amount (needle on ×3 → 100 × 3 = 300 coins).`,`Khi quảng cáo kết thúc, hiệu ứng nhận thưởng chạy với số xu đã nhân (kim dừng ở ×3 → 100 × 3 = 300 xu).`),
+        t(`If the player taps <b>Next Level</b> instead, they get the base reward and move on.`,`Nếu người chơi chạm <b>Màn tiếp theo</b>, họ nhận phần thưởng gốc và qua màn.`)
+      ]))+
+      panel(t('Edge cases','Trường hợp đặc biệt'),ul([
+        t(`Ad closed early or failed to load: the player gets the base reward only, with no multiplier.`,`Quảng cáo bị tắt sớm hoặc không tải được: người chơi chỉ nhận phần thưởng gốc, không được nhân.`),
+        t(`No ad available: the Bonus button looks disabled. The needle still swings but does nothing.`,`Không có quảng cáo: nút Thưởng thêm hiện ở trạng thái mờ. Kim vẫn lắc nhưng không có tác dụng.`),
+        t(`Daily ad limit for the multiplier reached: hide the gauge and the Bonus button, and re-center the rest of the screen.`,`Đã hết số lần xem quảng cáo nhân thưởng trong ngày: ẩn đồng hồ và nút Thưởng thêm, căn giữa lại phần còn lại của màn hình.`),
+        t(`Lock every input on the win screen during the 1-second pause and the ad, so double taps do nothing.`,`Khóa mọi thao tác trên màn hình thắng trong 1 giây chờ và lúc quảng cáo chạy, để chạm hai lần không gây lỗi.`)
+      ])+`<p class="note">${t(`Swing speed, each segment’s multiplier and the daily ad limit are remote config, so the chance of hitting ×5 can be tuned without a new build.`,`Tốc độ lắc của kim, hệ số của từng ô và giới hạn quảng cáo mỗi ngày đều nằm trong cấu hình từ xa, nên có thể chỉnh tỉ lệ trúng ×5 mà không cần ra bản mới.`)}</p>`));
+
+  /* ----- 1.5 elements ----- */
+  const DCAP={
+    hidden:t('A move pushes the Hidden Car into the front row, and its color shows.','Một lượt đi đẩy Xe ẩn lên hàng đầu, và màu của xe hiện ra.'),
+    lockedCol:t('Completing a column brings the counter to 0, and the Locked Column opens.','Hoàn thành một cột làm con số về 0, và Cột bị khóa được mở.'),
+    colored:t('Only pink cars can complete the pink column.','Chỉ xe màu hồng mới hoàn thành được cột màu hồng.'),
+    connected:t('Tapping the first column moves both. Its front car drives into the back of the other column, and the link breaks once both cars reach the front row.','Chạm cột đầu tiên thì cả hai cột cùng di chuyển. Xe ở hàng đầu của cột này chạy vào cuối cột kia, và liên kết được gỡ khi cả hai xe lên tới hàng đầu.'),
+    wooden:t('Completing the column next to it breaks the Wooden Box.','Hoàn thành cột bên cạnh sẽ phá vỡ Thùng gỗ.'),
+    double:t('Completing the outer color pops the shells, and the real colors show.','Hoàn thành màu lớp ngoài thì lớp vỏ bung ra, để lộ màu thật bên trong.')
+  };
+  const demo=k=>`<figure class="demo" data-demo="${k}"><div class="demo-box"><svg viewBox="0 0 200 210" role="img" aria-label="${esc(DCAP[k])}"><g class="scene">${DEMOS[k].svg()}</g></svg>`+
+    (DEMOS[k].static?'':`<button type="button" class="demo-btn" data-demo-toggle aria-pressed="false" aria-label="${esc(ui.pauseDemo)}"><svg class="i-pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="1" width="3" height="10" rx="1"/><rect x="7.5" y="1" width="3" height="10" rx="1"/></svg><svg class="i-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.2v9.6L10.5 6z"/></svg></button>`)+
+    `</div><figcaption>${DCAP[k]}</figcaption></figure>`;
+  B['elements-mechanics']=
+    ent(N.hidden,ul([
+      t(`A Hidden Car keeps its color hidden at the start of the level.`,`Xe ẩn giấu màu của mình khi bắt đầu màn chơi.`),
+      t(`It moves like any other car, but it cannot complete a column until its color is revealed. Even next to cars of its real color, the column does not count.`,
+        `Xe vẫn di chuyển như các xe khác, nhưng chưa thể giúp hoàn thành cột khi chưa lộ màu. Dù đứng cạnh các xe đúng màu thật của nó, cột vẫn chưa được tính là hoàn thành.`),
+      t(`Its color shows when it is pushed into the front row of any column.`,`Màu của xe hiện ra khi xe được đẩy lên hàng đầu của bất kỳ cột nào.`),
+      t(`From then on, it works like a normal car.`,`Từ lúc đó, xe hoạt động như xe bình thường.`),
+      t(`A Swap or Magnet that moves it into the front row or the waiting spot also reveals it.`,`Nếu Đổi chỗ hoặc Nam châm đưa xe lên hàng đầu hay ra ô chờ, màu xe cũng hiện ra.`)
+    ]),unlock(8),demo('hidden'))+
+    ent(N.lockedCol,ul([
+      t(`A Locked Column does not take cars. The player cannot drive a car into it until it unlocks.`,`Cột bị khóa không nhận xe. Người chơi không thể đưa xe vào cột này cho tới khi cột được mở.`),
+      t(`It unlocks after the player completes a set number of columns. Each Locked Column has its own number.`,`Cột được mở sau khi người chơi hoàn thành đủ một số cột nhất định. Mỗi Cột bị khóa có con số riêng.`),
+      t(`The counter on top drops by 1 each time a column is completed. At 0, the column unlocks and works like a normal column.`,`Con số phía trên giảm 1 mỗi khi có một cột hoàn thành. Khi về 0, cột được mở và dùng như cột bình thường.`),
+      t(`A Locked Column can never be a Colored Column.`,`Cột bị khóa không bao giờ là Cột màu.`)
+    ]),unlock(16),demo('lockedCol'))+
+    ent(N.colored,ul([
+      t(`A Colored Column has a set color from the start of the level.`,`Cột màu có sẵn một màu ngay từ đầu màn.`),
+      t(`Only cars of that color can complete it. Cars of another color don’t count, and neither do cars of its color sitting in a different column.`,
+        `Chỉ xe đúng màu đó mới hoàn thành được cột. Xe khác màu không được tính, và xe đúng màu nhưng nằm ở cột khác cũng không được tính.`),
+      t(`When it is completed and cars are still waiting in the extra queue, it turns into a normal column and the waiting cars fill it.`,
+        `Khi cột hoàn thành mà hàng chờ phụ vẫn còn xe, cột trở thành cột bình thường và các xe đang chờ sẽ vào lấp đầy cột.`),
+      t(`Colored Columns can also arrive later in a level, when the 1st, 2nd … extra column comes in.`,`Cột màu cũng có thể xuất hiện muộn hơn trong màn, khi cột phụ thứ 1, thứ 2 … được thêm vào.`)
+    ]),unlock(35),demo('colored'))+
+    ent(N.connected,ul([
+      t(`Two cars in the same row of two different columns can be connected.`,`Hai xe nằm cùng hàng ở hai cột khác nhau có thể được nối với nhau.`),
+      t(`When the column of one connected car moves, the column of the other car moves with it.`,`Khi cột chứa một xe nối di chuyển, cột chứa xe còn lại cũng di chuyển theo.`),
+      t(`When the two columns move together:`,`Khi hai cột cùng di chuyển:`)+ol([
+        t(`The waiting car drives into the back of the tapped column.`,`Xe ở ô chờ chạy vào cuối cột được chạm.`),
+        t(`The car in the tapped column’s front row drives into the back of the other column.`,`Xe ở hàng đầu của cột được chạm chạy vào cuối cột còn lại.`),
+        t(`The car in the other column’s front row drives out into the waiting spot.`,`Xe ở hàng đầu của cột còn lại chạy ra ô chờ.`)
+      ])+`<span class="after">${t(`Both columns move forward one place, so the two connected cars stay in the same row.`,`Cả hai cột cùng tiến lên một chỗ, nên hai xe nối vẫn luôn nằm cùng hàng.`)}</span>`,
+      t(`The link breaks when both cars reach the front row of their columns, or when one of the two columns is completed.`,`Liên kết được gỡ khi cả hai xe cùng lên tới hàng đầu của cột mình, hoặc khi một trong hai cột được hoàn thành.`)
+    ]),unlock(25),demo('connected'))+
+    ent(N.wooden,ul([
+      t(`The player cannot move a Wooden Box.`,`Người chơi không thể di chuyển Thùng gỗ.`),
+      t(`To break it, complete a column right next to it, on its left or right.`,`Muốn phá thùng, hãy hoàn thành một cột nằm ngay bên trái hoặc bên phải nó.`),
+      t(`Once the wood breaks, it moves like a normal car.`,`Khi lớp gỗ vỡ, nó di chuyển như một xe bình thường.`)
+    ]),unlock(45),demo('wooden'))+
+    ent(N.double,ul([
+      t(`A Double Layer car wears an outer shell with a temporary color.`,`Xe hai lớp có một lớp vỏ bên ngoài mang màu tạm thời.`),
+      t(`The player first sorts these cars by their shell color.`,`Trước tiên, người chơi xếp các xe này theo màu lớp vỏ.`),
+      t(`When that column is completed, the shells come off. The cars show their real colors and are sorted again like normal cars.`,
+        `Khi cột đó hoàn thành, lớp vỏ bung ra. Xe lộ màu thật và người chơi tiếp tục xếp chúng như xe bình thường.`)
+    ]),unlock(55),demo('double'));
+
+  /* ----- 1.6 boosters ----- */
+  const withM=t('With other mechanics','Khi gặp cơ chế khác'),withB=t('With other boosters','Khi gặp công cụ khác'),eff=t('Effect','Tác dụng');
+  B['booster-mechanics']=
+    ent(N.undo,params([
+      [eff,ul([t(`Takes back the last move.`,`Quay lại lượt đi vừa rồi.`),t(`The move counter gets that move back.`,`Số lượt đi được trả lại một lượt.`)])],
+      [withM,ul([
+        t(`Everything the move changed goes back to how it was: lock counters, an extra column that moved in, and so on.`,`Mọi thứ mà lượt đi đã thay đổi đều trở lại như cũ: con số của cột bị khóa, cột phụ vừa được thêm vào, v.v.`),
+        t(`Exception: a Hidden Car that was revealed stays revealed.`,`Ngoại lệ: Xe ẩn đã lộ màu thì vẫn giữ nguyên màu đã lộ.`),
+        t(`If the undo leaves a column matching again (its revealed Hidden Car plus matching cars), that column still counts as completed.`,`Nếu sau khi hoàn tác, một cột lại khớp màu (gồm Xe ẩn đã lộ màu và các xe cùng màu), cột đó vẫn được tính là hoàn thành.`),
+        t(`If an auto sort followed the move, Undo takes back the auto sort and then the player’s move.`,`Nếu sau lượt đi có tự động xếp, Hoàn tác sẽ quay lại lần tự động xếp trước, rồi mới quay lại lượt đi của người chơi.`)
+      ])],
+      [withB,ul([
+        t(`Used after a Swap or Magnet, one Undo takes back that booster’s effect and also the move made before the booster.`,`Nếu dùng sau Đổi chỗ hoặc Nam châm, một lần Hoàn tác sẽ quay lại tác dụng của công cụ đó, và quay lại luôn lượt đi ngay trước khi dùng công cụ.`),
+        t(`Undo does not give back boosters that were used.`,`Hoàn tác không trả lại công cụ đã dùng.`)
+      ])]
+    ]),unlockB(2))+
+    ent(N.swap,params([
+      [eff,ul([t(`Swaps the places of any 2 cars.`,`Đổi chỗ 2 xe bất kỳ.`),t(`Does not use a move.`,`Không tốn lượt đi.`)])],
+      [withM,ul([t(`Swapping a Hidden Car into the front row or the waiting spot reveals it.`,`Đổi một Xe ẩn lên hàng đầu hoặc ra ô chờ thì xe sẽ lộ màu.`)])]
+    ]),unlockB(12))+
+    ent(N.magnet,params([
+      [t('Target','Chọn cột'),t(`The player picks any column except a Locked Column.`,`Người chơi chọn một cột bất kỳ, trừ Cột bị khóa.`)],
+      [t('Picking the color','Chọn màu'),ol([
+        t(`If the column is a Colored Column, use its color.`,`Nếu là Cột màu, dùng màu của cột.`),
+        t(`Otherwise, use the color of the car at the back of the column, even if it is a Hidden Car.`,`Nếu không, dùng màu của xe nằm ở cuối cột, kể cả khi đó là Xe ẩn.`),
+        t(`If that car is a rainbow car, or its color already belongs to another Colored Column, try the next car toward the front, and so on until a color qualifies.`,
+          `Nếu xe đó là xe cầu vồng, hoặc màu của nó đã thuộc về một Cột màu khác, thì xét tới xe kế tiếp tiến về phía hàng đầu, cứ thế cho tới khi tìm được màu hợp lệ.`)
+      ])],
+      [eff,ul([
+        t(`Every car in the column that doesn’t match is swapped with a car of the chosen color from elsewhere on the board.`,`Mọi xe không khớp trong cột sẽ được đổi với xe đúng màu đã chọn ở chỗ khác trên bãi.`),
+        t(`The column now holds only that color and is completed.`,`Cột giờ chỉ còn một màu và được hoàn thành.`)
+      ])],
+      [withM,ul([
+        t(`Hidden Car of the chosen color: it can be swapped in from another column, and its color is revealed.`,`Xe ẩn mang màu đã chọn: có thể được đổi vào từ cột khác, và màu xe sẽ hiện ra.`),
+        t(`Car of the chosen color inside a Locked Column: it can still be swapped out to complete the column.`,`Xe mang màu đã chọn nằm trong Cột bị khóa: vẫn được đổi ra để hoàn thành cột.`),
+        t(`Cars of the chosen color stored in an extra layer can be swapped in too.`,`Xe mang màu đã chọn đang nằm trong lớp phụ cũng có thể được đổi vào.`),
+        t(`A Hidden Car that the Magnet moves into the front row or the waiting spot is revealed.`,`Xe ẩn được Nam châm đưa lên hàng đầu hoặc ra ô chờ sẽ lộ màu.`)
+      ])]
+    ]),unlockB(15));
+
+  /* ===== 2. IAP & offers ===== */
+  B['iap--offers']=`<p class="sec-intro">${t(`In-app purchases, rewarded-ad gifts and the popups that offer them. Every unlock level in this section is remote config.`,
+    `Các gói mua trong game, quà nhận bằng quảng cáo có thưởng và các popup giới thiệu chúng. Mọi màn mở khóa trong mục này đều nằm trong cấu hình từ xa.`)}</p>`;
+
+  const offerRows=[
+    [t('Unlock level','Màn mở khóa'),lvl(12),lvl(15),lvl(10)],
+    [t('Session start','Khi mở game'),
+      t(`Pops up while its 72-hour countdown is running. It has the highest priority.`,`Hiện khi đồng hồ 72 giờ vẫn đang chạy. Đây là popup được ưu tiên cao nhất.`),
+      t(`Never. It sells poorly when the player hasn’t just seen an ad.`,`Không bao giờ hiện. Gói này khó bán khi người chơi vừa không gặp quảng cáo.`),
+      t(`Opens if the 4-hour cooldown has passed.`,`Hiện nếu đã qua 4 giờ chờ.`)],
+    [t('In-game triggers','Khi nào hiện trong game'),
+      t(`The player opens the game after reaching level 12.`,`Người chơi mở game sau khi đã tới màn 12.`),
+      t(`Right after the player passes level 15 and sees their first interstitial ad. It shows again after more interstitials (see 2.4).`,`Ngay sau khi người chơi qua màn 15 và gặp quảng cáo xen kẽ đầu tiên. Sau đó hiện lại sau một số quảng cáo xen kẽ (xem 2.4).`),
+      ul([t(`Back to Home after completing a level.`,`Quay về màn hình chính sau khi hoàn thành một màn.`),t(`Completing a level while the claim timer is running.`,`Hoàn thành một màn khi đồng hồ nhận quà vẫn đang chạy.`)])],
+    [t('In the store','Trong cửa hàng'),
+      t(`Hidden until the first popup appears. The countdown starts with that popup.`,`Ẩn cho tới khi popup đầu tiên hiện ra. Đồng hồ đếm ngược bắt đầu từ popup đó.`),
+      t(`Always there and can be bought as normal. If bought before the popup, the popup never shows.`,`Luôn có trong cửa hàng và mua được như bình thường. Nếu đã mua trước khi popup hiện thì popup sẽ không bao giờ hiện.`),
+      t(`Not in the store.`,`Không có trong cửa hàng.`)],
+    [t('Icon','Biểu tượng'),
+      t(`Hidden until the first popup appears.`,`Ẩn cho tới khi popup đầu tiên hiện ra.`),
+      t(`Hidden until the first popup appears.`,`Ẩn cho tới khi popup đầu tiên hiện ra.`),
+      t(`Only visible while the gift is waiting to be claimed.`,`Chỉ hiện khi đang có quà chờ nhận.`)],
+    [t('Expiry & cooldown','Hết hạn & thời gian chờ'),
+      t(`Can only be bought within 72 hours. Gone for good once bought or expired.`,`Chỉ mua được trong 72 giờ. Biến mất hẳn khi đã mua hoặc hết hạn.`),
+      t(`Permanent. Hidden once bought.`,`Ưu đãi lâu dài. Ẩn đi khi đã mua.`),
+      t(`4 hours between gifts. 10 minutes to claim once it appears, then it disappears.`,`Mỗi lần quà cách nhau 4 giờ. Có 10 phút để nhận khi quà xuất hiện, sau đó quà biến mất.`)]
+  ];
+  B['offer-overview']=table(t('Offer overview','Tổng quan ưu đãi'),[t('Detail','Chi tiết'),t('Starter Pack (IAP)','Gói Khởi đầu (IAP)'),t('Remove Ads (IAP)','Gỡ quảng cáo (IAP)'),t('Limited Time Reward (ad)','Quà giới hạn thời gian (quảng cáo)')],offerRows,'wide offers');
+
+  B['session-start-popup']=
+    `<p class="sec-intro">${t(`Only one popup can show when the game opens. The game checks the offers in this order and shows the first one that passes.`,
+      `Mỗi lần mở game chỉ hiện tối đa một popup. Trò chơi kiểm tra các ưu đãi theo thứ tự dưới đây và hiện popup đầu tiên thỏa điều kiện.`)}</p>
+     <div class="flow">
+       <div class="node"><p><span class="k">${t('Step 1','Bước 1')}</span>${t(`The game opens and checks the player’s level.`,`Game mở ra và kiểm tra màn hiện tại của người chơi.`)}</p></div>
+       ${arrow}
+       <div class="node"><p><span class="k">${t('Step 2 · Starter Pack','Bước 2 · Gói Khởi đầu')}</span></p><p class="cond">${t(`Is the Starter Pack active? All must be true:`,`Gói Khởi đầu còn hiệu lực không? Phải thỏa tất cả:`)}</p>${ul([
+         t(`Player level ≥ the Starter Pack unlock level (12)`,`Màn của người chơi ≥ màn mở Gói Khởi đầu (12)`),
+         t(`Not bought yet`,`Chưa mua`),
+         t(`Still inside the 72-hour window`,`Vẫn còn trong 72 giờ`)])}</div>
+       ${arrow}
+       <div class="split">
+         <div class="node"><p class="cond"><span class="yn">${t('Yes','Có')}</span>${t(`Show the Starter Pack popup.`,`Hiện popup Gói Khởi đầu.`)}</p><p>${t('Stop here.','Dừng tại đây.')}</p></div>
+         <div class="node"><p class="cond"><span class="yn no">${t('No','Không')}</span>${t(`Go to step 3.`,`Chuyển sang bước 3.`)}</p></div>
+       </div>
+       ${arrow}
+       <div class="node"><p><span class="k">${t('Step 3 · Limited Time Reward','Bước 3 · Quà giới hạn thời gian')}</span></p><p class="cond">${t(`Is the Limited Time Reward ready? All must be true:`,`Quà giới hạn thời gian đã sẵn sàng chưa? Phải thỏa tất cả:`)}</p>${ul([
+         t(`Player level ≥ the Limited Time Reward unlock level (10)`,`Màn của người chơi ≥ màn mở Quà giới hạn thời gian (10)`),
+         t(`At least 4 hours since the last gift`,`Đã qua ít nhất 4 giờ kể từ lần quà trước`)])}</div>
+       ${arrow}
+       <div class="split">
+         <div class="node"><p class="cond"><span class="yn">${t('Yes','Có')}</span>${t(`Show the Limited Time Reward popup.`,`Hiện popup Quà giới hạn thời gian.`)}</p><p>${t('Stop here.','Dừng tại đây.')}</p></div>
+         <div class="node"><p class="cond"><span class="yn no">${t('No','Không')}</span>${t(`Show nothing and go straight to the Home screen.`,`Không hiện gì, vào thẳng màn hình chính.`)}</p></div>
+       </div>
+     </div>`+
+    `<div class="note">${ul([
+      t(`Remove Ads is never part of this check (see 2.4).`,`Gỡ quảng cáo không bao giờ nằm trong lượt kiểm tra này (xem 2.4).`),
+      t(`No popups show while an FTUE step is still in progress.`,`Không popup nào hiện khi người chơi đang làm dở một bước FTUE.`)])}</div>`;
+
+  B['starter-pack']=
+    sys(nm('Starter Pack','Gói Khởi đầu'),
+      lead(t(`A one-time, low-price pack for first-time buyers, shown as a big limited-time discount.`,`Gói giá rẻ chỉ mua được một lần, dành cho người chơi lần đầu bỏ tiền, được giới thiệu như một đợt giảm giá lớn có thời hạn.`))+
+      tiles([['2,500',t('Gold','Vàng')],['2×',t('Each booster','Mỗi công cụ')],['2 h',t('Unlimited lives','Tim vô hạn')],['$1.99',t('Price','Giá'),'hot']])+
+      panel(t('Why it reads as a deal','Vì sao trông rất hời'),ul([
+        t(`Same price as the cheapest gold pack, with 2.5× the gold (2,500 vs 1,000), plus 2 of each booster and unlimited lives.`,`Cùng giá với gói vàng rẻ nhất nhưng nhiều vàng gấp 2,5 lần (2.500 so với 1.000), lại có thêm mỗi công cụ 2 lượt và tim vô hạn.`),
+        t(`About the same content as the Small Pack (a little more), at 40% of its price. Shown as “60% OFF – Limited Time”.`,`Nội dung ngang (hoặc nhỉnh hơn) Gói Nhỏ, nhưng giá chỉ bằng 40%. Hiển thị là “60% OFF – Limited Time”.`)
+      ]))+
+      panel(t('When it appears','Khi nào xuất hiện'),ul([
+        t(`Unlocks when the player opens the game after reaching level 12.`,`Mở khi người chơi vào game sau khi đã tới màn 12.`),
+        t(`The first popup shows right then, and the 72-hour countdown starts after it.`,`Popup đầu tiên hiện ngay lúc đó, và đồng hồ 72 giờ bắt đầu chạy sau popup này.`),
+        t(`While the countdown runs, the popup can show again at session start (see 2.2).`,`Trong lúc đồng hồ còn chạy, popup có thể hiện lại khi mở game (xem 2.2).`)
+      ]))+
+      panel(t('Icon and store','Biểu tượng và cửa hàng'),ul([
+        t(`The Home icon (with countdown) and the store entry stay hidden until the first popup.`,`Biểu tượng ở màn hình chính (kèm đồng hồ) và mục trong cửa hàng được ẩn cho tới khi popup đầu tiên hiện ra.`),
+        t(`After that, the player can open the offer from the Home icon or the store at any time during the 72 hours.`,`Sau đó, người chơi có thể mở ưu đãi từ biểu tượng ở màn hình chính hoặc từ cửa hàng bất cứ lúc nào trong 72 giờ.`)
+      ]))+
+      panel(t('Expiry','Hết hạn'),kv([
+        [t('Bought','Đã mua'),t(`Popup, icon and store entry disappear for good.`,`Popup, biểu tượng và mục trong cửa hàng biến mất hẳn.`)],
+        [t('72 hours pass','Hết 72 giờ'),t(`With no purchase, the offer disappears for good.`,`Nếu chưa mua, ưu đãi biến mất hẳn.`)],
+        [t('Product ID','Mã sản phẩm'),`<code>sts_starterpack</code>`]
+      ])));
+
+  const raRows=[
+    [t('1st time','Lần 1'),ul([t(`The player reaches the required level (15).`,`Người chơi tới màn yêu cầu (15).`),t(`Shows right after the first interstitial ad after that level.`,`Hiện ngay sau quảng cáo xen kẽ đầu tiên kể từ màn đó.`)]),ul([t(`Shows once.`,`Chỉ hiện 1 lần.`)])],
+    [t('2nd to 4th time','Lần 2 đến lần 4'),ul([t(`After every 4 interstitial ads.`,`Sau mỗi 4 quảng cáo xen kẽ.`)]),ul([t(`20-minute cooldown after each popup, or until the player starts a new session.`,`Sau mỗi lần hiện phải chờ 20 phút, hoặc tới khi người chơi mở phiên chơi mới.`)])],
+    [t('5th time onward','Từ lần 5 trở đi'),ul([t(`After every 8 interstitial ads.`,`Sau mỗi 8 quảng cáo xen kẽ.`)]),ul([t(`At most 2 popups a day.`,`Tối đa 2 lần mỗi ngày.`),t(`The daily count resets after 24 hours.`,`Số lần trong ngày được tính lại sau 24 giờ.`)])]
+  ];
+  B['remove-ads']=
+    sys(nm('Remove Ads','Gỡ quảng cáo'),
+      lead(t(`Removes forced ads for good, for players who see a lot of them.`,`Gỡ vĩnh viễn quảng cáo bắt buộc, dành cho người chơi gặp nhiều quảng cáo.`))+
+      tiles([[t('No ads','Không QC'),t('Interstitials and banners','Xen kẽ và banner')],['1,500',t('Gold (about 2 revives)','Vàng (đủ khoảng 2 lần hồi sinh)')],['1×',t('Each booster','Mỗi công cụ')],['$7.99',t('Price','Giá'),'hot']])+
+      panel(t('What it does','Tác dụng'),ul([
+        t(`Removes interstitial and banner ads permanently.`,`Gỡ vĩnh viễn quảng cáo xen kẽ và quảng cáo banner.`),
+        t(`Rewarded ads stay, because the player chooses to watch them for rewards.`,`Quảng cáo có thưởng vẫn giữ lại, vì người chơi tự chọn xem để nhận thưởng.`),
+        t(`Shown with a “Hot” tag in the store.`,`Hiện kèm nhãn “Hot” trong cửa hàng.`)
+      ]))+
+      panel(t('When it appears','Khi nào xuất hiện'),ul([
+        t(`Never at session start.`,`Không bao giờ hiện khi mở game.`),
+        t(`The first popup shows right after the player has passed level 15 and has just seen their first interstitial ad after that level. The ad itself reminds them why the offer is useful.`,
+          `Popup đầu tiên hiện ngay sau khi người chơi đã qua màn 15 và vừa gặp quảng cáo xen kẽ đầu tiên kể từ màn đó. Chính quảng cáo ấy nhắc người chơi vì sao gói này đáng mua.`)
+      ]))+
+      panel(t('Popup repeats','Popup hiện lại'),`<p>${t(`After the first time, the popup comes back after a number of interstitial ads. The gap grows over time so it doesn’t annoy the player.`,`Sau lần đầu, popup hiện lại sau một số quảng cáo xen kẽ. Khoảng cách giữa các lần tăng dần để không làm phiền người chơi.`)}</p>`+
+        table(t('Remove Ads popup repeats','Popup Gỡ quảng cáo hiện lại'),[t('Popup shows','Lần hiện'),t('When it shows','Khi nào hiện'),t('Limit','Giới hạn')],raRows,'wide'))+
+      panel(t('Icon and store','Biểu tượng và cửa hàng'),ul([
+        t(`Always available in the store, so the player can buy it any time, even before level 15.`,`Luôn có trong cửa hàng, người chơi mua được bất cứ lúc nào, kể cả trước màn 15.`),
+        t(`If the player buys it before the popup is triggered, the popup never shows.`,`Nếu người chơi mua trước khi popup được kích hoạt, popup sẽ không bao giờ hiện.`),
+        t(`The Home icon stays hidden until the first popup appears.`,`Biểu tượng ở màn hình chính được ẩn cho tới khi popup đầu tiên hiện ra.`)
+      ]))+
+      panel(t('Expiry and restore','Hết hạn và khôi phục'),kv([
+        [t('Expiry','Hết hạn'),t(`Permanent offer, no countdown. Once bought, the popup, icon and store entry hide.`,`Ưu đãi lâu dài, không đếm ngược. Khi đã mua, popup, biểu tượng và mục trong cửa hàng được ẩn đi.`)],
+        [t('Restore','Khôi phục'),t(`It is a non-consumable purchase, so it must be restored when the player reinstalls or changes device (Restore Purchases button in Settings and in the Store).`,
+                                  `Đây là gói mua một lần dùng mãi, nên phải khôi phục được khi người chơi cài lại game hoặc đổi máy (nút Khôi phục giao dịch trong Cài đặt và trong Cửa hàng).`)],
+        [t('Product ID','Mã sản phẩm'),`<code>sts_removeads</code>`]
+      ])));
+
+  const bx=n=>t(`${n}× each`,`Mỗi loại ×${n}`);
+  const hr=n=>t(`${n} h`,`${n} giờ`);
+  const packs=[
+    [t('Remove Ads','Gỡ quảng cáo')],
+    ['Remove Ads Pack','sts_removeads','1,500',bx(1),dash,'$7.99',
+      t(`Removes ads. Core utility pack with a “Hot” tag and a little gold (about 2 revives).`,`Gỡ quảng cáo. Gói tiện ích chính, có nhãn “Hot” và một ít vàng (đủ khoảng 2 lần hồi sinh).`)],
+    [t('Limited Time Pack','Gói giới hạn thời gian')],
+    ['Starter Pack','sts_starterpack','2,500',bx(2),hr(2),'$1.99',
+      t(`Same price as the cheapest gold pack with 2.5× the gold, plus 2 of each booster and unlimited lives. About the Small Pack’s content at 40% of its price (60% off, limited time).`,
+        `Cùng giá gói vàng rẻ nhất nhưng nhiều vàng gấp 2,5 lần, thêm mỗi công cụ 2 lượt và tim vô hạn. Nội dung ngang Gói Nhỏ với giá chỉ 40% (giảm 60%, có thời hạn).`)],
+    [t('Special Packs','Gói đặc biệt')],
+    ['Small Pack','sts_smallpack','2,500',bx(2),hr(1),'$4.99',t(`Basic pack for 1 hour of easy play.`,`Gói cơ bản cho 1 giờ chơi thoải mái.`)],
+    ['Medium Pack','sts_mediumpack','10,000',bx(5),hr(2),'$9.99',t(`Double the Small Pack’s price, with 4× its gold.`,`Giá gấp đôi Gói Nhỏ, vàng gấp 4 lần.`)],
+    ['Ultra Pack','sts_ultrapack','25,000',bx(10),hr(6),'$24.99',t(`Lots of boosters and 6 hours of unlimited lives (about 2 play sessions).`,`Nhiều công cụ hỗ trợ và 6 giờ tim vô hạn (khoảng 2 phiên chơi).`)],
+    [t('Gold Packs','Gói vàng')],
+    ['1,000 Gold','sts_1000coins','1,000',dash,dash,'$1.99',t(`Cheapest pack, the base price anchor.`,`Gói rẻ nhất, làm mốc giá cơ bản.`)],
+    ['5,000 Gold','sts_5000coins','5,000',dash,dash,'$4.99',t(`Better value than the $1.99 pack.`,`Đáng giá hơn gói $1.99.`)],
+    ['10,000 Gold','sts_10000coins','10,000',dash,dash,'$9.99',t(`Mid-size gold pack.`,`Gói vàng cỡ vừa.`)],
+    ['25,000 Gold','sts_25000coins','25,000',dash,dash,'$24.99',t(`Large gold pack.`,`Gói vàng lớn.`)],
+    ['50,000 Gold','sts_50000coins','50,000',dash,dash,'$49.99',t(`Very large gold pack.`,`Gói vàng rất lớn.`)],
+    ['100,000 Gold','sts_100000coins','100,000',dash,dash,'$99.99',t(`Top pack for big spenders. “Best Value” tag.`,`Gói cao nhất cho người chi mạnh. Có nhãn “Best Value”.`)],
+    [t('Limited Time Reward','Quà giới hạn thời gian')],
+    ['Gold Brick Package!',dash,'200',t('1 booster','1 công cụ'),dash,t('Rewarded ad','Quảng cáo có thưởng'),t(`Free gift for watching an ad (see 3.1).`,`Quà miễn phí khi xem quảng cáo (xem 3.1).`)]
+  ];
+  const NUMC={2:1,5:1};
+  const packHead=[t('Pack','Gói'),'ID',t('Gold','Vàng'),t('Boosters','Công cụ hỗ trợ'),t('Unlimited lives','Tim vô hạn'),t('Price (USD)','Giá (USD)'),t('Note','Ghi chú')];
+  B['store']=ul([
+      t(`Opened from the Home screen and from the gold counter on the HUD.`,`Mở từ màn hình chính và từ ô đếm vàng trên HUD.`),
+      t(`Packs are grouped in this order: Remove Ads → Limited Time Pack → Special Packs → Gold Packs.`,`Các gói được xếp theo nhóm, thứ tự: Gỡ quảng cáo → Gói giới hạn thời gian → Gói đặc biệt → Gói vàng.`)
+    ])+
+    `<div class="tbl xwide" tabindex="0" role="region" aria-label="${esc(t('Store packs','Các gói trong cửa hàng'))}" style="margin-top:14px"><table><thead><tr>${packHead.map((h,i)=>`<th scope="col"${NUMC[i]?' class="num"':''}>${h}</th>`).join('')}</tr></thead><tbody>${
+      packs.map(r=>r.length===1?`<tr class="grp"><th scope="rowgroup" colspan="7">${r[0]}</th></tr>`
+        :`<tr><th scope="row">${r[0]}</th><td>${r[1]===dash?dash:`<code>${r[1]}</code>`}</td>${r.slice(2).map((c,i)=>`<td${NUMC[i+2]?' class="num"':(i+2===6?' class="wrap"':'')}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`+
+    ent(t('Display rules','Quy tắc hiển thị'),ul([
+      t(`Starter Pack shows only during its 72-hour window (after its first popup). Hide it once bought or expired.`,`Gói Khởi đầu chỉ hiện trong 72 giờ (tính từ popup đầu tiên). Ẩn đi khi đã mua hoặc hết hạn.`),
+      t(`Remove Ads Pack hides once bought.`,`Gói Gỡ quảng cáo ẩn đi khi đã mua.`),
+      t(`Gold Packs and Special Packs always show and can be bought again and again.`,`Gói vàng và Gói đặc biệt luôn hiện và mua được nhiều lần.`),
+      t(`Show a “Best Value” tag on the 100,000 Gold pack and a “Hot” tag on Remove Ads.`,`Gắn nhãn “Best Value” cho gói 100.000 vàng và nhãn “Hot” cho gói Gỡ quảng cáo.`),
+      t(`After a successful purchase, play the reward animation (gold and boosters fly to the HUD), then update the counters.`,`Sau khi mua thành công, chạy hiệu ứng nhận thưởng (vàng và công cụ bay lên HUD), rồi cập nhật các con số.`),
+      t(`If the purchase fails or is cancelled, close the loading state and keep the player in the store with nothing changed.`,`Nếu giao dịch lỗi hoặc bị hủy, tắt trạng thái đang tải và giữ người chơi ở cửa hàng, không thay đổi gì.`)
+    ]));
+
+  B['infinite-lives-format']=`<p class="sec-intro">${t('The time left on unlimited lives shows next to the ∞ icon in one of three formats:','Thời gian tim vô hạn còn lại hiện cạnh biểu tượng ∞ theo một trong ba dạng:')}</p>`+
+    table(t('Unlimited lives timer format','Định dạng đồng hồ tim vô hạn'),
+      [t('Time left','Thời gian còn lại'),t('Format','Định dạng'),t('Example','Ví dụ')],
+      [[t('≥ 1 day','≥ 1 ngày'),'<code>xxd</code>','<code>2d</code>'],
+       [t('≥ 1 hour','≥ 1 giờ'),'<code>xxh yym</code>','<code>12h 23m</code>'],
+       [t('< 1 hour','< 1 giờ'),'<code>mm:ss</code>','<code>15:12</code>']],'compact');
+
+  /* ===== 3. Live ops ===== */
+  B['live-ops']=`<p class="sec-intro">${t(`Features that bring players back and help them past hard levels, mostly paid for with rewarded ads.`,
+    `Các tính năng giúp người chơi quay lại game và vượt qua màn khó, phần lớn đổi bằng quảng cáo có thưởng.`)}</p>`;
+  const st=(name,sub,desc,go)=>`<div class="state blk"><p class="sn"><span class="yn">${name}</span><small>${sub}</small></p><p>${desc}</p><ul class="go">${go.map(g=>`<li>${g}</li>`).join('')}</ul></div>`;
+  B['limited-time-reward']=
+    sys(nm('Limited Time Reward','Quà giới hạn thời gian'),
+      lead(t(`A free gift on a regular cycle, claimed by watching a rewarded ad. It gives players a reason to come back.`,`Món quà miễn phí lặp lại đều đặn, nhận bằng cách xem quảng cáo có thưởng. Đây là lý do để người chơi quay lại game.`))+
+      tiles([[`200 + 1`,t('Gold + booster (“Gold Brick Package!”)','Vàng + công cụ (“Gold Brick Package!”)')],[t('4 h','4 giờ'),t('Between gifts','Giữa hai lần quà')],[t('10 min','10 phút'),t('To claim','Để nhận quà')],[t('Level 10','Màn 10'),t('Unlocks (remote config)','Mở khóa (cấu hình từ xa)')]])+
+      panel(t('States','Các trạng thái'),`<div class="states">`+
+        st(t('Locked','Đang khóa'),t('Cooling down 4 h','Đang chờ 4 giờ'),
+           t(`No gift yet. The icon is hidden. The 4-hour cooldown counts down in real time.`,`Chưa có quà. Biểu tượng được ẩn. Thời gian chờ 4 giờ đếm ngược theo giờ thực.`),
+           [t(`Cooldown ends and a trigger happens → <b>Available</b>`,`Hết thời gian chờ và có sự kiện kích hoạt → <b>Sẵn sàng</b>`)])+
+        st(t('Available','Sẵn sàng'),t('Popup on screen','Popup đang mở'),
+           t(`The Limited Time Reward popup is open.`,`Popup Quà giới hạn thời gian đang hiện.`),
+           [t(`Player watches the ad and claims → <b>Claimed</b>`,`Người chơi xem quảng cáo và nhận quà → <b>Đã nhận</b>`),t(`Player closes the popup without claiming → <b>Pending</b>`,`Người chơi đóng popup mà không nhận → <b>Chờ nhận</b>`)])+
+        st(t('Claimed','Đã nhận'),t('Cooldown restarts','Bắt đầu chờ lại'),
+           t(`The reward is given with the reward animation.`,`Người chơi nhận quà kèm hiệu ứng nhận thưởng.`),
+           [t(`Straight back to <b>Locked</b>, with a new 4-hour cooldown`,`Quay lại <b>Đang khóa</b>, bắt đầu 4 giờ chờ mới`)])+
+        st(t('Pending','Chờ nhận'),t('HUD icon, 10-minute countdown','Biểu tượng trên HUD, đếm ngược 10 phút'),
+           t(`The gift icon shows on the HUD with a 10-minute countdown. Tapping it reopens the popup.`,`Biểu tượng quà hiện trên HUD kèm đồng hồ 10 phút. Chạm vào để mở lại popup.`),
+           [t(`Player reopens the popup and claims → <b>Claimed</b>`,`Người chơi mở lại popup và nhận quà → <b>Đã nhận</b>`),t(`10 minutes pass → icon disappears, back to <b>Locked</b> with a new 4-hour cooldown`,`Hết 10 phút → biểu tượng biến mất, quay lại <b>Đang khóa</b> với 4 giờ chờ mới`)])+
+        `</div>`)+
+      panel(t('When the popup can open','Khi nào popup có thể hiện'),ul([
+        t(`At session start, if the 4-hour cooldown has passed (following the order in 2.2).`,`Khi mở game, nếu đã qua 4 giờ chờ (theo thứ tự ở mục 2.2).`),
+        t(`When the player returns to Home after completing a level.`,`Khi người chơi quay về màn hình chính sau khi hoàn thành một màn.`),
+        t(`When the player completes a level while the 10-minute claim timer is still running, as a reminder.`,`Khi người chơi hoàn thành một màn trong lúc đồng hồ 10 phút vẫn còn chạy, để nhắc nhận quà.`)
+      ]))+
+      panel(t('Edge cases','Trường hợp đặc biệt'),ul([
+        t(`Ad closed early or failed: no reward. The gift stays as it was (Available or Pending), so the player can try again while there is time left.`,`Quảng cáo bị tắt sớm hoặc lỗi: không nhận được quà. Quà giữ nguyên trạng thái (Sẵn sàng hoặc Chờ nhận) để người chơi thử lại khi còn thời gian.`),
+        t(`The gift is not shown in the store.`,`Quà này không hiện trong cửa hàng.`)
+      ])));
+
+  B['skip-level']=defs([
+    [t('Unlock','Mở khóa'),t(`Level X. Set in remote config, not decided yet.`,`Màn X. Đặt trong cấu hình từ xa, chưa chốt.`)],
+    [t('When it shows','Khi nào hiện'),ul([
+      t(`The Skip Level button shows on the lose screen once the player has failed the same level a number of times in a row (remote config, default 3).`,`Nút Bỏ qua màn hiện ở màn hình thua khi người chơi đã thua cùng một màn nhiều lần liên tiếp (cấu hình từ xa, mặc định 3 lần).`),
+      t(`The fail count resets when the player completes or skips that level.`,`Số lần thua được tính lại từ đầu khi người chơi qua màn hoặc bỏ qua màn đó.`)])],
+    [t('Cost','Chi phí'),t(`Watch 1 rewarded ad, or pay coins (remote config).`,`Xem 1 quảng cáo có thưởng, hoặc trả bằng xu (cấu hình từ xa).`)],
+    [t('Result','Kết quả'),ul([
+      t(`The level counts as completed and the player moves on to the next one.`,`Màn được tính là đã qua và người chơi chuyển sang màn tiếp theo.`),
+      t(`A skipped level gives no coin reward and no win screen bonus.`,`Màn bị bỏ qua không có xu thưởng và không có đồng hồ thưởng thêm.`),
+      t(`It still counts toward the element unlock progress bar.`,`Màn này vẫn được tính vào thanh tiến độ mở khóa yếu tố.`),
+      t(`Skipping does not cost a life.`,`Bỏ qua màn không bị trừ tim.`)])],
+    [t('Limits','Giới hạn'),ul([
+      t(`FTUE levels and levels that introduce a new element or booster cannot be skipped.`,`Không được bỏ qua các màn FTUE và các màn giới thiệu yếu tố hoặc công cụ mới.`),
+      t(`A maximum number of skips per day (remote config). Once reached, the button hides.`,`Có giới hạn số lần bỏ qua mỗi ngày (cấu hình từ xa). Khi đạt giới hạn, nút được ẩn đi.`),
+      t(`Ad closed early or failed: no skip, and the player stays on the lose screen.`,`Quảng cáo bị tắt sớm hoặc lỗi: không được bỏ qua, người chơi vẫn ở màn hình thua.`)])]
+  ]);
+
+  B['retry-with-booster']=defs([
+    [t('Unlock','Mở khóa'),t(`After the first booster unlocks (remote config).`,`Sau khi công cụ hỗ trợ đầu tiên được mở (cấu hình từ xa).`)],
+    [t('When it shows','Khi nào hiện'),ul([
+      t(`On the lose screen, after the player has used up or declined the revive.`,`Ở màn hình thua, sau khi người chơi đã dùng hết hoặc từ chối hồi sinh.`),
+      t(`Optional rule (remote config): only show after the player has failed the same level a set number of times.`,`Quy tắc tùy chọn (cấu hình từ xa): chỉ hiện khi người chơi đã thua cùng một màn đủ số lần quy định.`)])],
+    [t('Cost','Chi phí'),t(`Watch 1 rewarded ad.`,`Xem 1 quảng cáo có thưởng.`)],
+    [t('Result','Kết quả'),ul([
+      t(`The level restarts with 1 free booster already selected, picked at random from the boosters the player has unlocked.`,`Màn chơi bắt đầu lại với 1 công cụ miễn phí đã được chọn sẵn, lấy ngẫu nhiên trong các công cụ người chơi đã mở.`),
+      t(`The free booster does not come from the player’s own stock. If it is not used in that attempt, it is lost.`,`Công cụ miễn phí này không trừ vào số công cụ người chơi đang có. Nếu không dùng trong lượt chơi đó, công cụ sẽ mất.`),
+      t(`Retrying still costs 1 life as usual, unless unlimited lives are active. With 0 lives, show the refill lives offer instead.`,`Chơi lại vẫn tốn 1 tim như bình thường, trừ khi đang có tim vô hạn. Nếu hết tim, hiện ưu đãi nạp tim thay vào đó.`)])],
+    [t('Limits','Giới hạn'),ul([
+      t(`A maximum number of uses per day (remote config). Once reached, the offer hides.`,`Có giới hạn số lần dùng mỗi ngày (cấu hình từ xa). Khi đạt giới hạn, ưu đãi được ẩn đi.`),
+      t(`Ad closed early or failed: no booster, and the normal lose screen options show.`,`Quảng cáo bị tắt sớm hoặc lỗi: không có công cụ, màn hình thua hiện các lựa chọn bình thường.`)])]
+  ]);
+
+  /* ===== 4. FTUE & tutorial ===== */
+  B['ftue--tutorial']=`<p class="sec-intro">${t(`FTUE stands for first-time user experience: what a player goes through the first time they open the game.`,
+    `FTUE (First-Time User Experience) là trải nghiệm của người chơi trong lần đầu tiên mở game.`)}</p>`;
+  B['ftue-logic']=defs([
+    [t('Goal','Mục tiêu'),t(`The FTUE helps players grasp the core loop quickly. Its levels introduce mechanics one at a time, in a natural order, without too much information at once.`,
+       `FTUE giúp người chơi nhanh chóng hiểu cách chơi chính. Các màn đầu giới thiệu từng cơ chế một cách tự nhiên, lần lượt, không dồn quá nhiều thông tin cùng lúc.`)],
+    [nm('Input masking','Khóa thao tác'),t(`When a step needs a tap on a specific spot, a see-through overlay blocks every touch outside that spot, so the player follows the intended path. The game HUD stays usable.`,
+       `Khi một bước cần người chơi chạm vào một chỗ cụ thể, trò chơi phủ một lớp mờ và chặn mọi thao tác chạm ngoài chỗ đó, để người chơi đi đúng hướng dẫn. Các nút trên HUD vẫn bấm được.`)],
+    [nm('State machine','Đi theo từng bước'),t(`Each tutorial runs one step at a time. The overlay lifts and the next step starts only when the player meets the current step’s complete condition.`,
+       `Mỗi hướng dẫn chạy lần lượt từng bước. Chỉ khi người chơi làm đúng yêu cầu của bước hiện tại thì lớp mờ mới được gỡ và trò chơi chuyển sang bước kế tiếp.`)],
+    [nm('Highlight','Khung nổi bật'),t(`Some steps highlight the place to tap. The player can only tap that place.`,`Ở một số bước, chỗ cần chạm sẽ được làm nổi bật. Người chơi chỉ chạm được vào đúng chỗ đó.`)],
+    [t('Progress save','Lưu tiến độ'),t(`Some steps save that they are complete. If the player closes the app mid-tutorial and opens it again, the FTUE skips the saved steps and continues from the next one.`,
+       `Một số bước sẽ lưu lại là đã xong. Nếu người chơi thoát game giữa chừng rồi mở lại, FTUE bỏ qua các bước đã lưu và chạy tiếp từ bước kế tiếp.`)]
+  ]);
+  const tapPop=popup('Match the colored car<br>to its column.','Đưa xe về đúng cột<br>cùng màu.');
+  const tapCond=t('The player taps the highlighted column.','Người chơi chạm vào cột đang được làm nổi bật.');
+  B['ftue-steps']=table(t('FTUE steps','Các bước FTUE'),
+    [t('Step','Bước'),t('Complete condition','Điều kiện hoàn thành'),t('Highlight','Phần được làm nổi bật'),t('Text box','Nội dung hộp thoại'),t('Progress save','Lưu tiến độ')],
+    [
+      [t('Load the level','Tải màn chơi'),t('The game loads into level 1.','Trò chơi vào màn 1.'),dash,dash,dash],
+      [t('Terms &amp; Privacy Policy','Điều khoản &amp; Chính sách quyền riêng tư'),t('The player accepts the Terms &amp; Conditions and Privacy Policy.','Người chơi đồng ý với Điều khoản và Chính sách quyền riêng tư.'),dash,dash,t('Yes','Có')],
+      [t('First tap','Chạm lần 1'),tapCond,t('2nd column from the left','Cột thứ 2 từ trái sang'),tapPop,dash],
+      [t('Second tap','Chạm lần 2'),tapCond,t('4th column from the left','Cột thứ 4 từ trái sang'),tapPop,dash],
+      [t('Third tap','Chạm lần 3'),tapCond,t('1st column from the left','Cột thứ 1 từ trái sang'),tapPop,dash],
+      [t('Fourth tap','Chạm lần 4'),tapCond,t('3rd column from the left','Cột thứ 3 từ trái sang'),tapPop,dash],
+      [t('Level 1 complete','Hoàn thành màn 1'),t('The player completes level 1.','Người chơi hoàn thành màn 1.'),dash,dash,t('Yes','Có')]
+    ],'wide steps-tbl');
+
+  const newType=k=>`<span class="orig">${t('New car type','Loại xe mới')} · ID <code>${k}</code></span>`;
+  B['element-tutorial']=table(t('Element tutorial','Hướng dẫn yếu tố đặc biệt'),
+    [t('Element','Yếu tố'),t('Popup text','Nội dung popup'),t('Unlocks at level','Mở ở màn')],
+    [
+      [N.hidden,popup('Surprise cars stay hidden<br>until you reach the last row!','Xe bí ẩn sẽ giấu màu<br>cho tới khi lên hàng đầu!'),lvl(8)],
+      [N.lockedCol,popup('Complete the required<br>number of columns to<br>remove the Roadblock!','Hoàn thành đủ số cột<br>để dỡ rào chắn!'),lvl(16)],
+      [N.roadster+newType('b'),popup('Trendy and stylish sports car.','Mẫu xe thể thao sành điệu.'),lvl(20)],
+      [N.connected,popup('Move a Connected Car<br>to automatically move<br>the other column.','Di chuyển một Xe nối thì<br>cột bên kia cũng<br>di chuyển theo.'),lvl(25)],
+      [N.truck+newType('c'),popup('Tough and sturdy cargo truck.','Xe tải chở hàng bền bỉ, chắc chắn.'),lvl(30)],
+      [N.colored,popup('Only cars that match<br>the description can be cleared<br>in this column.','Chỉ xe đúng yêu cầu<br>mới hoàn thành được<br>cột này.'),lvl(35)],
+      [N.wooden,popup('Finish an adjacent column<br>to break the Box!','Hoàn thành một cột bên cạnh<br>để phá Thùng gỗ!'),lvl(45)],
+      [N.double,popup('Complete outer layer<br>to unlock inner color!','Hoàn thành lớp ngoài<br>để mở màu bên trong!'),lvl(55)]
+    ]);
+  B['booster-tutorial']=table(t('Booster tutorial','Hướng dẫn công cụ hỗ trợ'),
+    [t('Booster','Công cụ'),t('Popup text','Nội dung popup'),t('Unlocks at level','Mở ở màn'),t('Free boosters','Số lượt tặng')],
+    [
+      [N.undo,popup('Reverse your last move','Quay lại lượt đi vừa rồi'),lvl(2),lvl(3)],
+      [N.swap,popup('Swap any 2 cars','Đổi chỗ 2 xe bất kỳ'),lvl(12),lvl(3)],
+      [N.magnet,popup('Clear 1 row of cars','Xếp xong 1 hàng xe'),lvl(15),lvl(3)]
+    ]);
+
+  const stops=[
+    [1,t('First tutorial','Hướng dẫn đầu tiên'),'ftue','ftue-steps','FTUE'],
+    [2,P.undo,'boost','booster-mechanics'],[8,P.hidden,'elem','elements-mechanics'],
+    [12,P.swap,'boost','booster-mechanics'],[15,P.magnet,'boost','booster-mechanics'],
+    [16,P.lockedCol,'elem','elements-mechanics'],[20,P.roadster,'car','element-tutorial'],
+    [25,P.connected,'elem','elements-mechanics'],[30,P.truck,'car','element-tutorial'],
+    [35,P.colored,'elem','elements-mechanics'],[45,P.wooden,'elem','elements-mechanics'],[55,P.double,'elem','elements-mechanics']
+  ];
+  const kindName={boost:t('Booster','Công cụ hỗ trợ'),elem:t('Element','Yếu tố đặc biệt'),car:t('Car type','Loại xe')};
+  B['ftue--tutorial:after']=`<div class="glance">
+    <h4>${t('Unlock order at a glance','Thứ tự mở khóa theo màn')}</h4>
+    <p>${t('Sections 4.2 to 4.4 on one line, in level order.','Gom các mục 4.2 đến 4.4 trên một dòng, theo thứ tự màn chơi.')}</p>
+    <ul class="tkey" data-nosearch><li><i></i>${kindName.elem}</li><li><i class="boost"></i>${kindName.boost}</li><li><i class="car"></i>${kindName.car}</li></ul>
+    <ol class="timeline">${stops.map(s=>`<li class="${s[2]}"><span class="lv">${t('Level','Màn')} ${s[0]}</span><span class="nm"><a href="#${s[3]}">${s[1]}</a></span><span class="kd">${s[4]||kindName[s[2]]}</span></li>`).join('')}</ol>
+  </div>`;
+
+  /* ===== 5. SFX & haptics ===== */
+  const cat={ui:t('UI','Giao diện (UI)'),core:t('Core game SFX','Lối chơi chính'),el:t('Element SFX','Yếu tố đặc biệt')};
+  const sfx=[
+    ['BGM In Game','ui',t('Gameplay starts','Bắt đầu vào chơi'),0],
+    ['Win Level','ui',t('The player wins the level','Người chơi thắng màn'),3],
+    ['Lose Level','ui',t('The player is stuck for now (out of moves, before the revive choice)','Người chơi tạm thời bị kẹt (hết lượt đi, trước khi chọn hồi sinh)'),3],
+    ['Tap','ui',t('The player taps a UI button','Người chơi chạm vào nút trên giao diện'),1],
+    ['Purchase Success','ui',t('An in-app purchase completes','Giao dịch mua trong game thành công'),3],
+    ['Coin Reward','ui',t('The player claims a coin reward','Người chơi nhận xu thưởng'),0],
+    ['Booster Reward','ui',t('The player claims a booster reward','Người chơi nhận công cụ hỗ trợ'),0],
+    ['Car Move','core',t('A car moves','Xe di chuyển'),1],
+    ['Column Clear','core',t('A column is completed','Một cột được hoàn thành'),2],
+    ['Smoke Disappear','el',t('A Hidden Car reveals its color','Xe ẩn lộ màu'),0],
+    ['Column Unlock','el',t('A Locked Column unlocks','Cột bị khóa được mở'),0]
+  ];
+  B['sfx--haptics']=table(t('SFX and haptics','Âm thanh và rung'),
+    [t('Name','Tên'),t('Category','Nhóm'),t('Plays when','Phát khi'),t('Haptic','Rung')],
+    sfx.map(r=>[`<span lang="en">${r[0]}</span>`,`<span class="cat">${cat[r[1]]}</span>`,r[2],hap(r[3])]));
+
+  /* ===== 6. Change note ===== */
+  const day=(title,body)=>`<div class="sub"><h3><span>${title}</span></h3>${body}</div>`;
+  B['change-note']=`<p class="sec-intro">${t('Changes made to this GDD, grouped by day, newest first.','Các thay đổi của tài liệu này, gom theo ngày, ngày mới nhất ở trên cùng.')}</p>`+
+    day(t('23 October 2026','Ngày 23 tháng 10, 2026'),
+      ent(t('New interactive version','Bản tương tác mới'),ul([
+        t(`First interactive version of the Sort The Lot GDD, built from the Markdown notes, in English and Vietnamese.`,`Bản tương tác đầu tiên của tài liệu Sort The Lot, làm từ bản ghi chú Markdown, có tiếng Anh và tiếng Việt.`),
+        t(`Added contents, search, a sketch of the play screen with labeled parts, animated demos for every element and a try-it version of the win screen bonus gauge.`,`Thêm mục lục, ô tìm kiếm, hình minh họa màn chơi có chú thích từng phần, minh họa động cho mọi yếu tố đặc biệt và bản thử của đồng hồ thưởng ở màn hình thắng.`)
+      ]))+
+      ent(t('Game mechanics','Cơ chế trò chơi'),ul([
+        t(`Level loop: hard levels sit at every level where (level_id + 1) is a multiple of 5: 79, 84, 89, 94 …`,`Lặp màn: màn khó nằm ở mọi màn có (level_id + 1) chia hết cho 5: 79, 84, 89, 94 …`),
+        t(`New Car ID: one letter for the car type (a basic car, b Roadster, c truck) and one number for the color (1 red, 2 blue, 3 green, 4 yellow, 5 pink, 6 orange, 7 white), for example b3.`,
+          `Thêm Mã xe: một chữ cái cho loại xe (a xe thường, b Roadster, c xe tải) và một con số cho màu (1 đỏ, 2 xanh dương, 3 xanh lá, 4 vàng, 5 hồng, 6 cam, 7 trắng), ví dụ b3.`),
+        t(`Connected Cars: when the two columns move together, the tapped column’s front car drives into the back of the other column, and the other column’s front car drives out to the waiting spot.`,
+          `Xe nối: khi hai cột cùng di chuyển, xe ở hàng đầu của cột được chạm chạy vào cuối cột còn lại, và xe ở hàng đầu của cột còn lại chạy ra ô chờ.`),
+        t(`Undo: after a Swap or Magnet, one Undo takes back the booster and also the move made before it.`,`Hoàn tác: sau Đổi chỗ hoặc Nam châm, một lần Hoàn tác quay lại công cụ và cả lượt đi ngay trước đó.`),
+        t(`Magnet: picks its color from the car at the back of the column, then moves toward the front if that color can’t be used.`,`Nam châm: lấy màu từ xe ở cuối cột, nếu màu đó không dùng được thì xét dần về phía hàng đầu.`),
+        t(`Auto sort is written once, in 1.3, and the boosters are named Undo, Swap and Magnet.`,`Tự động xếp chỉ viết một lần, ở mục 1.3; các công cụ được đặt tên Hoàn tác, Đổi chỗ và Nam châm.`)
+      ]))+
+      ent(t('IAP & offers','Mua trong game & ưu đãi'),ul([
+        t(`Product IDs follow the store table: sts_starterpack and sts_removeads.`,`Mã sản phẩm theo bảng cửa hàng: sts_starterpack và sts_removeads.`),
+        t(`Removed the Gold per $1 column from the store table.`,`Bỏ cột Vàng mỗi $1 khỏi bảng cửa hàng.`),
+        t(`Remove Ads price set to $7.99 everywhere.`,`Giá gói Gỡ quảng cáo thống nhất là $7.99 ở mọi nơi.`)
+      ]))+
+      ent(t('Structure and wording','Cấu trúc và câu chữ'),ul([
+        t(`Object set & animation and Remote config are not part of this document. Change note is section 6.`,`Mục Đối tượng & chuyển động và mục Cấu hình từ xa không nằm trong tài liệu này. Ghi chú thay đổi là mục 6.`),
+        t(`Added “Words used here” in 1.2 to explain front row, back of a column and the waiting spot.`,`Thêm phần “Cách gọi trong tài liệu” ở mục 1.2, giải thích hàng đầu, cuối cột và ô chờ.`),
+        t(`“Reviewed” corrected to “revealed” for Hidden Cars, and popup typos fixed (“stylish”, “Wooden Box”, “its column”).`,`Sửa “reviewed” thành “revealed” (lộ màu) cho Xe ẩn, và sửa lỗi chính tả trong popup (“stylish”, “Wooden Box”, “its column”).`),
+        t(`Symbols written as plain text (≥, ×, →) instead of Markdown escapes.`,`Ký hiệu được viết bằng ký tự thường (≥, ×, →) thay cho ký hiệu Markdown.`)
+      ])));
+
+  /* ----- hero ----- */
+  const legend=[
+    ['A',t('Waiting spot','Ô chờ'),t('The car that comes out of a column waits here. The next tap drives it into a column.','Xe vừa ra khỏi cột sẽ đợi ở đây. Lần chạm tiếp theo sẽ đưa xe này vào một cột.')],
+    ['B',t('Front row','Hàng đầu'),t('The row next to the waiting spot. Cars leave a column from here.','Hàng sát ô chờ. Xe rời khỏi cột từ hàng này.')],
+    ['C',t('Columns','Các cột xe'),t('Tap one to drive the waiting car in. Sort each into one color and one car type.','Chạm vào một cột để đưa xe ở ô chờ vào. Mỗi cột cần xếp về một màu và một loại xe.')],
+    ['D',t('Back of a column','Cuối cột'),t('Where the waiting car enters. The rest of the column moves forward one place.','Nơi xe ở ô chờ đi vào. Cả cột tiến lên một chỗ.')],
+    ['E',t('Move counter','Số lượt đi'),t('Moves left in the level. Each tap on a column uses one.','Số lượt đi còn lại của màn. Mỗi lần chạm vào cột tốn một lượt.')]
+  ];
+  const hero=`<div class="hero" id="top" data-sec="top" data-spy="top">
+    <div>
+      <h1>Sort The Lot</h1>
+      <p class="kind">${ui.sub}</p>
+      <p class="pitch">${t(`Tap a column to drive the waiting car in. Sort every column into one color and one car type before the moves run out.`,
+                           `Chạm vào một cột để đưa xe đang chờ vào. Xếp mọi cột về cùng một màu và một loại xe trước khi hết lượt đi.`)}</p>
+      <ul class="legend">${legend.map(g=>`<li><button type="button" data-part="${g[0]}" aria-pressed="false"><span class="pinl" data-nosearch>${g[0]}</span><span><b>${g[1]}</b><span class="d">${g[2]}</span></span></button></li>`).join('')}</ul>
+    </div>
+    <figure class="field" id="field" data-demo="hero">
+      <div class="field-box">${heroSVG(t('Sketch of the play screen: four columns of cars with a waiting spot below and a move counter on top. The waiting car drives into the back of column 2, the column moves forward, and its red front car comes out. Column 2 is now all green.',
+        'Hình minh họa màn chơi: bốn cột xe, ô chờ ở dưới và số lượt đi ở trên. Xe đang chờ chạy vào cuối cột 2, cả cột tiến lên, và xe đỏ ở hàng đầu đi ra. Cột 2 giờ toàn màu xanh lá.'),ui.moves)}</div>
+      <div class="field-foot"><button type="button" class="pause" data-demo-toggle aria-pressed="${heroPaused?'true':'false'}">${heroPaused?ui.play:ui.pause}</button></div>
+      <figcaption>${t(`Simplified sketch of one move. The number of columns and rows are examples, not final values.`,
+                      `Hình minh họa đơn giản cho một lượt đi. Số cột và số hàng chỉ là ví dụ, chưa phải thông số chính thức.`)}</figcaption>
+    </figure>
+  </div>`;
+
+  return hero+SECTIONS.map(s=>`
+    <section class="sec" id="${s.id}" data-sec="${s.id}" data-spy="${s.id}">
+      <h2>${cap(s.c,s.n)}<span>${esc(s[l])}</span>${s.wip?wip:''}</h2>
+      ${B[s.id]||''}
+      ${(s.subs||[]).map(u=>`<div class="sub" id="${u.id}" data-sec="${u.id}" data-spy="${u.id}">
+        <h3><span class="num" data-nosearch>${u.n}</span><span>${esc(u[l])}</span>${u.wip?wip:''}</h3>
+        ${B[u.id]||''}
+      </div>`).join('')}
+      ${B[s.id+':after']||''}
+    </section>`).join('');
+}
+
+function tocHTML(l){
+  return `<ol>${SECTIONS.map(s=>`<li><a href="#${s.id}" data-target="${s.id}">${cap(s.c,s.n)}<span class="tl">${esc(s[l])}</span>${s.wip?`<span class="wipt" title="${UI[l].wip}">WIP</span>`:''}</a>${
+    s.subs?`<ol>${s.subs.map(u=>`<li><a href="#${u.id}" data-target="${u.id}"><span class="num">${u.n}</span><span class="tl">${esc(u[l])}</span>${u.wip?`<span class="wipt" title="${UI[l].wip}">WIP</span>`:''}</a></li>`).join('')}</ol>`:''
+  }</li>`).join('')}</ol>`;
+}
+
+/* ---------- win-screen gauge state ---------- */
+const G={swing:!reduceMotion,th:0,t0:0,raf:0,res:null};
+const PERIOD=1.7,AMP=84;
+const segOf=th=>Math.max(0,Math.min(4,Math.floor((th+90)/36)));
+function gaugeMsg(l){
+  const ui=UI[l];
+  if(G.res==='bonus')return ui.gRes(MULT[segOf(G.th)]);
+  if(G.res==='next')return ui.gNext;
+  return G.swing?ui.gTap:ui.gStart;
+}
+function setNeedle(){const n=document.getElementById('needle');if(n)n.setAttribute('transform',`rotate(${G.th.toFixed(2)} ${GX} ${GY})`);}
+function gaugeTick(ts){
+  if(!G.swing){G.raf=0;return;}
+  if(!G.t0)G.t0=ts;
+  G.th=AMP*Math.sin((ts-G.t0)/1000*Math.PI*2/PERIOD);
+  setNeedle();
+  G.raf=requestAnimationFrame(gaugeTick);
+}
+function startSwing(){
+  const ph=Math.asin(Math.max(-1,Math.min(1,G.th/AMP)));
+  G.t0=performance.now()-ph/(Math.PI*2/PERIOD)*1000;
+  G.swing=true;
+  if(!G.raf)G.raf=requestAnimationFrame(gaugeTick);
+}
+function gaugeUI(){
+  const g=$('#gauge');if(!g)return;
+  const ui=UI[lang];
+  g.classList.toggle('stopped',!G.swing);
+  const on=!G.swing&&G.res==='bonus'?segOf(G.th):-1;
+  $$('.gseg',g).forEach(p=>p.classList.toggle('on',+p.dataset.seg===on));
+  const b=$('#gBonus');if(b)b.textContent=G.swing?ui.bonus:(G.res?ui.again:ui.swing);
+  const r=$('#gRes');if(r)r.innerHTML=gaugeMsg(lang);
+  setNeedle();
+}
+
+/* ---------- state ---------- */
+const root=document.documentElement,main=$('#main'),rail=$('#rail'),panel=$('#panel'),toc=$('#toc'),results=$('#results'),
+      q=$('#q'),hint=$('#hint'),clr=$('#clr'),menuBtn=$('#menuBtn');
+const KEY='sortTheLotGddLang';
+let lang='en';
+try{if(/^vi/i.test(navigator.language||''))lang='vi';}catch(e){}
+try{const s=localStorage.getItem(KEY);if(s==='en'||s==='vi')lang=s;}catch(e){}
+
+let index=[],hits=[],cur=-1,spyEls=[],active='top';
+const narrow=window.matchMedia('(max-width:959px)'),statusEl=$('#status');
+const otherCache={};
+
+/* ---------- search ---------- */
+const COMB=/[̀-ͯ]/;
+const fold=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+const lower=s=>s.toLowerCase();
+const BLOCK='li,p,tr,h1,h2,h3,h4,h5,figcaption,.blk';
+
+function collect(rootEl){
+  const map=new Map(),out=[];
+  const w=document.createTreeWalker(rootEl,NodeFilter.SHOW_TEXT,{acceptNode(n){
+    if(!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;
+    const p=n.parentElement;
+    if(!p||p.closest('svg,[data-nosearch],script,style'))return NodeFilter.FILTER_REJECT;
+    return NodeFilter.FILTER_ACCEPT;
+  }});
+  while(w.nextNode()){
+    const n=w.currentNode,b=n.parentElement.closest(BLOCK);
+    if(!b)continue;
+    let e=map.get(b);
+    if(!e){e={el:b,nodes:[]};map.set(b,e);out.push(e);}
+    e.nodes.push(n);
+  }
+  out.forEach(e=>{
+    e.text=e.nodes.map(n=>n.nodeValue.replace(/\s+/g,' ').trim()).join(' ');
+    e.fold=fold(e.text);e.lower=lower(e.text);
+    const s=e.el.closest('[data-sec]');e.sec=s?s.dataset.sec:'top';
+  });
+  return out;
+}
+const LETTER=/\p{L}/u;
+function term(w){
+  const lo=lower(w),fo=fold(w),strict=fo!==lo;
+  const s=strict?lo:fo;
+  return {s,strict,whole:s.length===1};
+}
+function parseTerms(raw){
+  return raw.normalize('NFC').trim().split(/\s+/).filter(Boolean).map(term).filter(tm=>tm.s.length>=2||tm.strict);
+}
+function resolveTerms(list,raw){
+  const terms=parseTerms(raw);
+  if(terms.length>1){
+    const phrase=[term(raw.normalize('NFC').trim().replace(/\s+/g,' '))];
+    const m=matchIn(list,phrase);
+    if(m.length)return {terms:phrase,matched:m};
+  }
+  return {terms,matched:terms.length?matchIn(list,terms):[]};
+}
+function mapStr(str,fn){
+  let f='';const map=[];
+  for(let i=0;i<str.length;i++){const c=fn(str[i]);for(let k=0;k<c.length;k++){f+=c[k];map.push(i);}}
+  return {f,map};
+}
+function findRanges(str,terms){
+  const res=[];let fm=null,lm=null;
+  terms.forEach(tm=>{
+    const m=tm.strict?(lm||(lm=mapStr(str,lower))):(fm||(fm=mapStr(str,fold)));
+    let i=0;
+    while((i=m.f.indexOf(tm.s,i))!==-1){
+      const a=m.map[i];let b=m.map[i+tm.s.length-1]+1;
+      while(b<str.length&&COMB.test(str[b]))b++;
+      if(!tm.whole||(!(a>0&&LETTER.test(str[a-1]))&&!(b<str.length&&LETTER.test(str[b]))))res.push([a,b]);
+      i+=tm.s.length;
+    }
+  });
+  res.sort((x,y)=>x[0]-y[0]);
+  const merged=[];
+  res.forEach(r=>{const last=merged[merged.length-1];if(last&&r[0]<=last[1])last[1]=Math.max(last[1],r[1]);else merged.push(r.slice());});
+  return merged;
+}
+function markNode(node,terms){
+  const rs=findRanges(node.nodeValue,terms);
+  for(let i=rs.length-1;i>=0;i--){
+    const r=document.createRange();r.setStart(node,rs[i][0]);r.setEnd(node,rs[i][1]);
+    const m=document.createElement('mark');m.className='hit';
+    try{r.surroundContents(m);}catch(e){}
+  }
+}
+function clearMarks(){
+  $$('mark.hit',main).forEach(m=>{const p=m.parentNode;p.replaceChild(document.createTextNode(m.textContent),m);p.normalize();});
+}
+function markedHTML(str,terms){
+  const rs=findRanges(str,terms);let h='',pos=0;
+  rs.forEach(r=>{h+=esc(str.slice(pos,r[0]))+'<mark>'+esc(str.slice(r[0],r[1]))+'</mark>';pos=r[1];});
+  return h+esc(str.slice(pos));
+}
+function snippet(e,terms){
+  const txt=e.text,rs=findRanges(txt,terms),first=rs.length?rs[0][0]:0;
+  let a=Math.max(0,first-34),b=Math.min(txt.length,first+92);
+  if(a>0){const sp=txt.indexOf(' ',a);if(sp!==-1&&sp<first)a=sp+1;}
+  if(b<txt.length){const sp=txt.lastIndexOf(' ',b);if(sp>first+12)b=sp;}
+  return (a>0?'…':'')+markedHTML(txt.slice(a,b),terms)+(b<txt.length?'…':'');
+}
+function crumb(id){const s=SEC[id];return s?s.n+' '+s[lang]:UI[lang].overview;}
+function matchIn(list,terms){return list.filter(e=>terms.every(tm=>(tm.strict?e.lower:e.fold).includes(tm.s)&&findRanges(e.text,[tm]).length));}
+
+function runSearch(fromInput){
+  const ui=UI[lang];
+  clearMarks();
+  index=collect(main);
+  const raw=q.value,found=resolveTerms(index,raw),terms=found.terms;
+  hits=[];cur=-1;
+  clr.hidden=!raw;
+  if(!terms.length){
+    rail.dataset.view='toc';results.innerHTML='';statusEl.textContent='';
+    hint.textContent='/';hint.classList.add('key');hint.hidden=!!raw;
+    if(fromInput)setOpen(false);
+    return;
+  }
+  const matched=found.matched;
+  matched.forEach(e=>e.nodes.forEach(n=>markNode(n,terms)));
+  hits=matched.map(e=>e.el);
+  rail.dataset.view='results';
+  statusEl.textContent=matched.length?ui.matches(matched.length):ui.none(raw.trim());
+  hint.classList.remove('key');hint.hidden=false;hint.textContent=String(hits.length);
+  if(matched.length){
+    results.innerHTML=`<div class="res-head"><span>${ui.matches(matched.length)}</span><button type="button" class="linkbtn" data-clear>${ui.clear}</button></div>`+
+      matched.map((e,i)=>`<a class="res" href="#${e.sec}" data-hit="${i}"><span class="crumb">${esc(crumb(e.sec))}</span><span class="snip">${snippet(e,terms)}</span></a>`).join('')+
+      `<p class="res-tip">${ui.tip}</p>`;
+  }else{
+    const o=lang==='en'?'vi':'en';
+    if(!otherCache[o]){const d=document.createElement('div');d.innerHTML=view(o);otherCache[o]=collect(d);}
+    const n=resolveTerms(otherCache[o],raw).matched.length;
+    results.innerHTML=`<div class="res-empty"><p>${esc(ui.none(raw.trim()))}</p>`+
+      (n?`<p class="muted">${ui.other(n)}</p><button type="button" class="linkbtn" data-set-lang="${o}">${ui.switchTo}</button>`
+        :`<p class="muted">${ui.tryShort}</p>`)+`</div>`;
+  }
+  if(fromInput)setOpen(true);
+}
+function goHit(i){
+  if(!hits.length)return;
+  cur=(i+hits.length)%hits.length;
+  const el=hits[cur];
+  el.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'center'});
+  el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+  hint.textContent=(cur+1)+'/'+hits.length;
+  $$('.res',results).forEach(a=>{
+    const on=+a.dataset.hit===cur;
+    if(on){a.setAttribute('aria-current','true');keepVisible(a);}else a.removeAttribute('aria-current');
+  });
+}
+function clearSearch(focus){q.value='';runSearch(true);if(focus)q.focus();}
+
+/* ---------- contents panel ---------- */
+function setOpen(on){rail.dataset.open=on?'1':'';menuBtn.setAttribute('aria-expanded',on?'true':'false');}
+function keepVisible(el){
+  if(!el||getComputedStyle(panel).position==='absolute'&&rail.dataset.open!=='1')return;
+  const p=panel.getBoundingClientRect(),r=el.getBoundingClientRect();
+  if(r.top<p.top+8)panel.scrollTop-=(p.top+8-r.top);
+  else if(r.bottom>p.bottom-8)panel.scrollTop+=(r.bottom-p.bottom+8);
+}
+function spy(){
+  if(!spyEls.length)return;
+  const line=(parseFloat(getComputedStyle(root).getPropertyValue('--bar-h'))||0)+110;
+  let id=spyEls[0].dataset.spy;
+  for(const el of spyEls){if(el.getBoundingClientRect().top<=line)id=el.dataset.spy;else break;}
+  if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-4&&window.scrollY>0)id=spyEls[spyEls.length-1].dataset.spy;
+  if(id===active&&$('.toc a.on'))return;
+  active=id;
+  $$('.toc a').forEach(a=>{
+    const on=a.dataset.target===id;
+    a.classList.toggle('on',on);
+    if(on){a.setAttribute('aria-current','location');keepVisible(a);}else a.removeAttribute('aria-current');
+  });
+}
+let ticking=false;
+function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;spy();});}
+function jump(id){
+  if(id==='top'){window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'});}
+  else{const el=document.getElementById(id);if(!el)return;el.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});}
+  try{history.replaceState(null,'',id==='top'?location.pathname+location.search:'#'+id);}catch(e){}
+}
+
+/* ---------- demo engine (Web Animations, one loop per figure) ---------- */
+let demoStates=[],demoIO=null;
+function kfs(frames,prop,D){
+  const f=frames.slice().sort((a,b)=>a[0]-b[0]);
+  if(f[0][0]>0)f.unshift([0,f[0][1]]);
+  if(f[f.length-1][0]<D)f.push([D,f[f.length-1][1]]);
+  return f.map(([t,v,e])=>({offset:Math.min(1,Math.max(0,t/D)),[prop]:v,easing:e||'ease-in-out'}));
+}
+function applyDemo(st){const run=st.vis&&!st.user;st.anims.forEach(a=>{try{if(run)a.play();else a.pause();}catch(e){}});}
+function startDemos(){
+  demoStates.forEach(st=>st.anims.forEach(a=>{try{a.cancel();}catch(e){}}));demoStates=[];
+  if(demoIO){demoIO.disconnect();demoIO=null;}
+  if(!Element.prototype.animate)return;
+  $$('[data-demo]',main).forEach(fig=>{
+    const def=DEMOS[fig.dataset.demo];if(!def||def.static)return;
+    const D=def.D,anims=[];
+    [[def.fade||'.scene','opacity',[[0,0],[.35,1],[D-.45,1],[D,0]]]].concat(def.tracks()).forEach(([sel,prop,frames])=>{
+      fig.querySelectorAll(sel).forEach(el=>{try{anims.push(el.animate(kfs(frames,prop,D),{duration:D*1000,iterations:Infinity}));}catch(e){}});
+    });
+    const isHero=fig.dataset.demo==='hero';
+    const st={fig,anims,user:isHero?(heroPaused||reduceMotion):reduceMotion,vis:true,hero:isHero};fig._demo=st;demoStates.push(st);
+    const btn=fig.querySelector('[data-demo-toggle]');
+    if(btn&&st.user)setToggle(btn,true,isHero);
+    applyDemo(st);
+  });
+  if('IntersectionObserver' in window){
+    demoIO=new IntersectionObserver(es=>es.forEach(e=>{const st=e.target._demo;if(!st)return;st.vis=e.isIntersecting;applyDemo(st);}),{rootMargin:'120px 0px'});
+    demoStates.forEach(st=>demoIO.observe(st.fig));
+  }
+}
+function setToggle(btn,paused,isHero){
+  const ui=UI[lang];
+  btn.setAttribute('aria-pressed',paused?'true':'false');
+  if(isHero)btn.textContent=paused?ui.play:ui.pause;
+  else btn.setAttribute('aria-label',paused?ui.playDemo:ui.pauseDemo);
+}
+
+/* ---------- render + language ---------- */
+function render(){
+  const ui=UI[lang];
+  root.lang=lang;root.dataset.lang=lang;document.title=ui.title;
+  main.innerHTML=view(lang);
+  toc.innerHTML=tocHTML(lang);
+  $('#brandSub').textContent=ui.sub;
+  q.placeholder=narrow.matches?ui.searchShort:ui.search;q.setAttribute('aria-label',ui.search);
+  clr.setAttribute('aria-label',ui.clear);
+  menuBtn.setAttribute('aria-label',ui.contents);toc.setAttribute('aria-label',ui.contents);
+  $('#langSwitch').setAttribute('aria-label',ui.language);
+  $$('#langSwitch [data-set-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.setLang===lang?'true':'false'));
+  spyEls=$$('[data-spy]',main);
+  runSearch(false);
+  spy();
+  startDemos();
+  gaugeUI();
+  if(G.swing&&!G.raf)G.raf=requestAnimationFrame(gaugeTick);
+}
+function setLang(l){
+  if(l===lang||(l!=='en'&&l!=='vi'))return;
+  const anchor=document.getElementById(active),before=anchor?anchor.getBoundingClientRect().top:null,atTop=window.scrollY<8;
+  lang=l;
+  try{localStorage.setItem(KEY,l);}catch(e){}
+  render();
+  if(!atTop&&before!==null){
+    const el=document.getElementById(active);
+    if(el)window.scrollBy(0,el.getBoundingClientRect().top-before);
+  }
+  spy();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const tg=e.target;
+  const lb=tg.closest('[data-set-lang]');
+  if(lb){setLang(lb.dataset.setLang);return;}
+  if(tg.closest('[data-clear]')||tg.closest('#clr')){clearSearch(true);return;}
+  if(tg.closest('#menuBtn')){
+    const open=rail.dataset.open==='1';
+    if(!open)rail.dataset.view='toc';
+    setOpen(!open);
+    if(!open)keepVisible($('.toc a.on'));
+    return;
+  }
+  const a=tg.closest('a[href^="#"]');
+  if(a){
+    e.preventDefault();
+    if(a.dataset.hit!=null)goHit(+a.dataset.hit);
+    else jump(decodeURIComponent(a.getAttribute('href').slice(1)));
+    setOpen(false);
+    return;
+  }
+  const db=tg.closest('[data-demo-toggle]');
+  if(db){
+    const fig=db.closest('[data-demo]'),st=fig&&fig._demo;
+    const on=db.getAttribute('aria-pressed')!=='true';
+    if(fig&&fig.dataset.demo==='hero')heroPaused=on;
+    setToggle(db,on,fig&&fig.dataset.demo==='hero');
+    if(st){st.user=on;applyDemo(st);}
+    return;
+  }
+  if(tg.closest('#gBonus')){
+    if(G.swing){G.swing=false;G.res='bonus';}
+    else{G.res=null;startSwing();}
+    gaugeUI();return;
+  }
+  if(tg.closest('#gNext')){G.res='next';startSwing();gaugeUI();return;}
+  const lg=tg.closest('.legend button');
+  if(lg){
+    const was=lg.getAttribute('aria-pressed')==='true';
+    $$('.legend button').forEach(b=>b.setAttribute('aria-pressed','false'));
+    if(!was){lg.setAttribute('aria-pressed','true');$('#field').dataset.hl=lg.dataset.part;}
+    else delete $('#field').dataset.hl;
+    return;
+  }
+  if(!tg.closest('.rail'))setOpen(false);
+});
+function hoverPart(e,on){
+  const b=e.target.closest&&e.target.closest('.legend button');if(!b)return;
+  const f=$('#field');if(!f)return;
+  if(on)f.dataset.hl=b.dataset.part;
+  else{const p=$('.legend button[aria-pressed="true"]');if(p)f.dataset.hl=p.dataset.part;else delete f.dataset.hl;}
+}
+main.addEventListener('mouseover',e=>hoverPart(e,true));
+main.addEventListener('mouseout',e=>hoverPart(e,false));
+main.addEventListener('focusin',e=>hoverPart(e,true));
+main.addEventListener('focusout',e=>hoverPart(e,false));
+
+q.addEventListener('input',()=>runSearch(true));
+q.addEventListener('focus',()=>{if(parseTerms(q.value).length){rail.dataset.view='results';setOpen(true);}});
+q.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();if(hits.length){goHit(cur+(e.shiftKey?-1:1));setOpen(false);}}
+  else if(e.key==='Escape'){e.preventDefault();if(q.value)clearSearch(true);else{setOpen(false);q.blur();}}
+});
+document.addEventListener('keydown',e=>{
+  const el=document.activeElement,typing=el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.isContentEditable);
+  if((e.key==='/'&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey)||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k')){e.preventDefault();q.focus();q.select();}
+  else if(e.key==='Escape'&&!typing)setOpen(false);
+});
+window.addEventListener('scroll',onScroll,{passive:true});
+window.addEventListener('resize',onScroll);
+const onNarrow=()=>{q.placeholder=narrow.matches?UI[lang].searchShort:UI[lang].search;if(!narrow.matches)setOpen(false);};
+if(narrow.addEventListener)narrow.addEventListener('change',onNarrow);else if(narrow.addListener)narrow.addListener(onNarrow);
+
+render();
+try{
+  const h=decodeURIComponent((location.hash||'').slice(1));
+  if(h&&document.getElementById(h))requestAnimationFrame(()=>{document.getElementById(h).scrollIntoView({block:'start'});spy();});
+}catch(e){}
+})();
+</script>
+
+</body></html>
