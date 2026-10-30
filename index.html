@@ -1393,9 +1393,6 @@ function view(l){
           [t('End','Kết thúc'),t('Bought, or 72 h over','Đã mua, hoặc hết 72 giờ'),t('Gone for good, never shows again','Biến mất vĩnh viễn, không hiện lại')]
         ],'compact'))+
       kv([
-        [t('Why a deal','Vì sao hời'),ul([
-          t(`Same price as the cheapest gold pack, with 2.5× the gold (2,500 vs 1,000), plus 2 of each booster and unlimited lives.`,`Cùng giá với gói vàng rẻ nhất nhưng nhiều vàng gấp 2,5 lần (2.500 so với 1.000), lại có thêm mỗi công cụ 2 lượt và tim vô hạn.`),
-          t(`About the same content as the Small Pack (a little more), at 40% of its price.`,`Nội dung ngang (hoặc nhỉnh hơn) Gói Nhỏ, nhưng giá chỉ bằng 40%.`)])],
         [t('Popup priority','Ưu tiên popup'),t(`Highest (cannot be blocked by other popups).`,`Cao nhất (không bị popup khác chặn).`)],
         [t('Store & Icon','Cửa hàng & Biểu tượng'),ul([
           t(`<b>Store:</b> offer appears only after the 1st popup. Hides once bought or expired.`,`<b>Cửa hàng:</b> ưu đãi chỉ xuất hiện sau popup đầu. Ẩn khi đã mua hoặc hết hạn.`),
@@ -1482,6 +1479,9 @@ function view(l){
   const day=(title,body)=>`<div class="sub"><h3><span>${title}</span></h3>${body}</div>`;
   B['change-note']=`<p class="sec-intro">${t('Changes made to this GDD, grouped by day, newest first.','Các thay đổi của tài liệu này, gom theo ngày, ngày mới nhất ở trên cùng.')}</p>`+
     day(t('30 October 2026','Ngày 30 tháng 10, 2026'),
+      ent(t('Starter Pack','Gói Khởi đầu'),ul([
+        t(`Removed the “Why a deal” part from the Starter Pack section.`,`Bỏ phần “Vì sao hời” khỏi mục Gói Khởi đầu.`)
+      ]))+
       ent(t('Naming','Tên gọi'),ul([
         t(`First Class Package is renamed Garage Gift! (section 7.3, popup list, popup priority, remote config).`,`First Class Package được đổi tên thành Garage Gift! (mục 7.3, danh sách popup, thứ tự ưu tiên popup, cấu hình từ xa).`)
       ]))+
