@@ -540,7 +540,7 @@ const SECTIONS=[
   {id:'live-ops',n:'7',c:6,en:'Live ops',vi:'Tính năng Live Ops',subs:[
     {id:'popup-list',n:'7.1',en:'Popup list',vi:'Danh sách popup'},
     {id:'popup-priority',n:'7.2',en:'Popup priority',vi:'Thứ tự ưu tiên popup'},
-    {id:'limited-time-reward',n:'7.3',en:'First Class Package',vi:'First Class Package'},
+    {id:'limited-time-reward',n:'7.3',en:'Garage Gift!',vi:'Garage Gift!'},
     {id:'skip-retry',n:'7.4',en:'Skip Level & Retry with Booster',vi:'Bỏ qua màn & Chơi lại kèm công cụ'}]},
   {id:'change-note',n:'8',c:7,en:'Change note',vi:'Ghi chú thay đổi'}
 ];
@@ -1267,7 +1267,7 @@ function view(l){
     rc(t('Unlock popups — offer unlock level','Popup mở khóa — màn mở ưu đãi'),[
       ['starter_pack_unlock_level',t('Starter Pack (IAP) — level from which the offer popup can show','Gói Khởi đầu (IAP) — màn bắt đầu có thể hiện popup ưu đãi'),'6',t('level','màn')],
       ['remove_ads_unlock_level',t('Remove Ads (IAP) — level from which the offer popup can show','Gỡ quảng cáo (IAP) — màn bắt đầu có thể hiện popup ưu đãi'),'8',t('level','màn')],
-      ['garage_gift_unlock_level',t('First Class Package (rewarded ad) — level from which the gift popup can show','First Class Package (quảng cáo thưởng) — màn bắt đầu có thể hiện popup quà'),'10',t('level','màn')]
+      ['garage_gift_unlock_level',t('Garage Gift! (rewarded ad) — level from which the gift popup can show','Garage Gift! (quảng cáo thưởng) — màn bắt đầu có thể hiện popup quà'),'10',t('level','màn')]
     ])+
     rc(t('Live ops','Live Ops'),[
       ['skip_level_max_per_day',t('Skip Level — max skips per day (ad or coins). The count resets each new day.','Bỏ qua màn — số lần bỏ qua tối đa mỗi ngày (bằng quảng cáo hoặc xu). Số lần được tính lại mỗi ngày mới.'),'3',t('count','lần')],
@@ -1280,7 +1280,7 @@ function view(l){
   /* 6.1 lists every pack and 7.1 every popup, one row each. Add or change a pack or popup there first,
      then give it a detail entry (6.3, 6.4 or section 7) only if its rules don't fit in one row.
      popup-list (7.1) and popup-priority (7.2) are built here because they share pid() and ref(). */
-  const FCP='First Class Package';
+  const FCP='Garage Gift!';
   B['iap--offers']=`<p class="sec-intro">${t(`Packs and every popup that offers something (money, coins or rewarded ad). Keep the pack list (6.1) and popup list (7.1) up to date. Unlock levels are remote config.`,
     `Các gói và mọi popup mời nhận ưu đãi (tiền, xu hoặc quảng cáo có thưởng). Luôn cập nhật danh sách gói (6.1) và danh sách popup (7.1). Màn mở khóa nằm trong cấu hình từ xa.`)}</p>`;
   const pid=s=>`<code>${s}</code>`;
@@ -1482,6 +1482,9 @@ function view(l){
   const day=(title,body)=>`<div class="sub"><h3><span>${title}</span></h3>${body}</div>`;
   B['change-note']=`<p class="sec-intro">${t('Changes made to this GDD, grouped by day, newest first.','Các thay đổi của tài liệu này, gom theo ngày, ngày mới nhất ở trên cùng.')}</p>`+
     day(t('30 October 2026','Ngày 30 tháng 10, 2026'),
+      ent(t('Naming','Tên gọi'),ul([
+        t(`First Class Package is renamed Garage Gift! (section 7.3, popup list, popup priority, remote config).`,`First Class Package được đổi tên thành Garage Gift! (mục 7.3, danh sách popup, thứ tự ưu tiên popup, cấu hình từ xa).`)
+      ]))+
       ent(t('Popup unlock levels and priority','Màn mở khóa popup và thứ tự ưu tiên'),ul([
         t(`Unlock levels: Starter Pack 6, Remove Ads 8, First Class Package 10 (popup list, remote config and each popup section).`,`Màn mở khóa: Starter Pack 6, Remove Ads 8, First Class Package 10 (danh sách popup, cấu hình từ xa và mục của từng popup).`),
         t(`Starter Pack 1st popup moves from Level Complete to Level Start of level 6, before play.`,`Popup đầu của Starter Pack chuyển từ Level Complete sang Level Start màn 6, trước khi chơi.`),
